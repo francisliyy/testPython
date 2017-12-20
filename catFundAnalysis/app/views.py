@@ -512,7 +512,60 @@ class MyView(BaseView):
         return self.render_template('export.html',lyear=lastyear,tyear=thisyear,lsim=2016,tsim=2017,analytype='exportYearbuild',title='Construction Type',
                                tables=[lastyear_exps_df.to_html(classes='table table-bordered',index=False,formatters={'CR Exposure':flt_num_format,'LR Exposure':flt_num_format,'Total Change':flt_percent_format},columns=[lastyear,'Construction Type','CR Exposure','LR Exposure','Total Change']),
                                        result_df.to_html(classes='table table-bordered',index=False,formatters={'CR Exposure':flt_num_format,'LR Exposure':flt_num_format,'Total Change':flt_percent_format,'CR Percentage Change':flt_percent_format,'LR Percentage Change':flt_percent_format,},columns=[thisyear,'Construction Type','CR Exposure','LR Exposure','Total Change','CR Percentage Change','LR Percentage Change'])])
+    
 
+    @staticmethod
+    def countyAna(yeartup):
+
+        countylist = [1,2,3]
+
+        i = 0
+
+        for year in yeartup:
+    	    # define path the different year
+            year_path = '/Users/yli120/Documents/pythonDev/catFundAnalysis/app/data/' + year
+
+            #defin year dataframe 
+            year_cr_risk = year_path + '/cr/CRILM_MidHighRise_AggRiskLosses.txt'
+            year_lr = year_path + '/pr_lr/valid_data.csv' 
+
+            year_cr_df_risk = pd.read_csv(year_cr_risk,usecols=['County','LMs', 'LMapp', 'LMc', 'LMale'])
+            year_lr_df = pd.read_csv(year_lr,usecols=['County','Units', 'LMs', 'LMapp', 'LMc', 'LMale'])
+            year_cr_df_risk.set_index("County",inplace=True)
+            year_lr_df.set_index("County",inplace=True)
+
+            year_cr_df_risk_group = year_cr_df_risk.groupby(['County']).agg(['sum'])
+            year_cr_df_risk_group['CR Exposure'] = year_cr_df_risk_group[['LMs','LMapp','LMc','LMale']].sum(axis=1)
+
+            year_lr_df_group = year_lr_df.groupby(['County']).agg(['sum'])
+            year_lr_df_group['LR Exposure'] = year_lr_df_group[['LMs','LMapp','LMc','LMale']].sum(axis=1)
+
+            df_cr_lr = pd.concat([year_cr_df_risk_group[['CR Exposure']],year_lr_df_group[['LR Exposure']]],axis=1)
+            df_cr_lr.fillna(0)
+
+            countylist[i] = df_cr_lr
+            i = i + 1
+
+        return countylist
+
+    @expose('/showCounty/<string:lastyear>/<string:thisyear>')
+    @has_access
+    def showCounty(self, lastyear, thisyear):
+
+    	# number format
+        int_num_format = lambda x: '{:,}'.format(x)
+        flt_num_format = lambda x: '${:,.2f}'.format(x)
+        flt_percent_format = lambda x: '{:,.2f}%'.format(x)
+
+        yeartup = (lastyear, thisyear)
+        countylist = MyView.countyAna(yeartup)
+
+        lastyear_exps_df = countylist[0]
+
+        return self.render_template('export.html',lyear=lastyear,tyear=thisyear,lsim=2016,tsim=2017,analytype='exportYearbuild',title='Construction Type',
+                               tables=[lastyear_exps_df.to_html(classes='table table-bordered',index=True,formatters={'CR Exposure':flt_num_format,'LR Exposure':flt_num_format},columns=['CR Exposure','LR Exposure'])
+                               ])
+        
 
 #appbuilder.add_view(MyView(), "Method1", category='My View')
 #appbuilder.add_view(MyView(), "Method2", href='/myview/method2/jonh', category='My View')
@@ -521,4 +574,5 @@ class MyView(BaseView):
 appbuilder.add_view(MyView(),"comparisons", href='/myview/showComparisons/2016/2017/57000/58000', category='My View')
 appbuilder.add_link("yearbuild", href='/myview/showYearbuild/2016/2017', category='My View')
 appbuilder.add_link("region", href='/myview/showRegion/2016/2017', category='My View')
+appbuilder.add_link("county", href='/myview/showCounty/2016/2017', category='My View')
 appbuilder.add_link("construction", href='/myview/showConstruction/2016/2017', category='My View')
