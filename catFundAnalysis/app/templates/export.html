@@ -1,0 +1,12 @@
+{% extends "appbuilder/base.html" %}
+{% block content %}
+    <h1>{{title}}</h1>
+    {% for table in tables %}
+    	<div>{{table | safe}}</div>
+	{% endfor %}
+	<div id="exptocsv">
+      <form action="/myview/{{analytype}}/{{lyear}}/{{tyear}}/{{lsim}}/{{tsim}}" method="GET">
+      	<input type='submit' value='Export Details' />
+      </form>
+    </div>
+{% endblock %}
