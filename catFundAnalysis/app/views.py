@@ -206,7 +206,7 @@ class MyView(BaseView):
         first_col = [lastyear,lastyear,lastyear,lastyear,lastyear,lastyear,thisyear,thisyear,thisyear,thisyear,thisyear,thisyear]
         df.insert(loc=index,column='year',value=first_col)
 
-        resp = make_response(df.to_csv(index=False))
+        resp = make_response(df.to_csv(index=False,float_format="%.2f"))
         resp.headers["Content-Disposition"] = "attachment; filename=Comparison.csv"
         resp.headers["Content-Type"] = "text/csv"
 
@@ -320,7 +320,7 @@ class MyView(BaseView):
         result_df = pd.concat([lastyear_exps_df[[lastyear,'Year Build','CR Exposure','LR Exposure','Total Change']], thisyear_exps_df[[thisyear,'Year Build','CR Exposure','LR Exposure','Total Change']]], axis=1)
         result_df_1 = pd.concat([result_df, percent_exps_df], axis=1)
 
-        resp = make_response(result_df_1.to_csv(index=False,))
+        resp = make_response(result_df_1.to_csv(index=False,float_format="%.2f"))
         resp.headers["Content-Disposition"] = "attachment; filename=Yearbuilt.csv"
         resp.headers["Content-Type"] = "text/csv"
 
@@ -441,7 +441,7 @@ class MyView(BaseView):
         result_df = pd.concat([lastyear_exps_df[[lastyear,'Region','CR Exposure','LR Exposure','Total Change']], thisyear_exps_df[[thisyear,'Region','CR Exposure','LR Exposure','Total Change']]], axis=1)
         result_df_1 = pd.concat([result_df, percent_exps_df], axis=1)
 
-        resp = make_response(result_df_1.to_csv(index=False,))
+        resp = make_response(result_df_1.to_csv(index=False,float_format="%.2f"))
         resp.headers["Content-Disposition"] = "attachment; filename=Region.csv"
         resp.headers["Content-Type"] = "text/csv"
 
@@ -550,7 +550,7 @@ class MyView(BaseView):
         result_df = pd.concat([lastyear_exps_df[[lastyear,'Construction Type','CR Exposure','LR Exposure','Total Change']], thisyear_exps_df[[thisyear,'Construction Type','CR Exposure','LR Exposure','Total Change']]], axis=1)
         result_df_1 = pd.concat([result_df, percent_exps_df], axis=1)
 
-        resp = make_response(result_df_1.to_csv(index=False,))
+        resp = make_response(result_df_1.to_csv(index=False,float_format="%.2f"))
         resp.headers["Content-Disposition"] = "attachment; filename=Construction.csv"
         resp.headers["Content-Type"] = "text/csv"
 
@@ -644,7 +644,7 @@ class MyView(BaseView):
         result_df = pd.concat([lastyear_exps_df, thisyear_exps_df], axis=1)
         #result_df_1 = pd.concat([result_df, percent_exps_df], axis=1)
 
-        resp = make_response(result_df.to_csv(index=True))
+        resp = make_response(result_df.to_csv(index=True,float_format="%.2f"))
         resp.headers["Content-Disposition"] = "attachment; filename=county.csv"
         resp.headers["Content-Type"] = "text/csv"
 
