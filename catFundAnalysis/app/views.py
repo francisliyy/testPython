@@ -189,8 +189,9 @@ class MyView(BaseView):
         lastyear_comparison_df = tables[0]
         thisyear_comparison_df = tables[1]
 
-        return self.render_template('comparison.html',lyear=lastyear,tyear=thisyear,lsim=lastsim,tsim=thissim,analytype='exportComparisons',title='CatFund Comparisons',aa=list(lastyear_comparison_df),
-                               tables=[lastyear_comparison_df.to_json(orient='records')])
+        return self.render_template('export.html',lyear=lastyear,tyear=thisyear,lsim=lastsim,tsim=thissim,analytype='exportComparisons',title='CatFund Comparisons',
+                               tables=[lastyear_comparison_df.to_html(classes='table table-bordered',index=False,formatters={'Total Unit Count':int_num_format,'Exp':flt_num_format,'AAL':flt_num_format},columns=[lastyear,'TOB','Total Unit Count','Unit Inc (%)','Exp','Exp Inc (%)','AAL','AAL Inc (%)']),
+                                       thisyear_comparison_df.to_html(classes='table table-bordered',index=False,formatters={'Total Unit Count':int_num_format,'Unit Inc (%)':flt_percent_format,'Exp':flt_num_format,'Exp Inc (%)':flt_percent_format,'AAL':flt_num_format,'AAL Inc (%)':flt_percent_format},columns=[thisyear,'TOB','Total Unit Count','Unit Inc (%)','Exp','Exp Inc (%)','AAL','AAL Inc (%)'])])
 
     @expose('/exportComparisons/<string:lastyear>/<string:thisyear>/<int:lastsim>/<int:thissim>')
     @has_access
@@ -265,17 +266,17 @@ class MyView(BaseView):
             yearlist[i] = year_exps_df
             i = i + 1
 
-        percent_cr_exps_lt_1970 = (yearlist[1].iat[0,0] - yearlist[0].iat[0,0]) / yearlist[0].iat[0,0] * 100
-        percent_cr_exps_lte_1983 = (yearlist[1].iat[1,0] - yearlist[0].iat[1,0]) / yearlist[0].iat[1,0] * 100
-        percent_cr_exps_lte_1993 = (yearlist[1].iat[2,0] - yearlist[0].iat[2,0]) / yearlist[0].iat[2,0] * 100
-        percent_cr_exps_gte_1994 = (yearlist[1].iat[3,0] - yearlist[0].iat[3,0]) / yearlist[0].iat[3,0] * 100
-        percent_cr_exps_total = (yearlist[1].iat[4,0] - yearlist[0].iat[4,0]) / yearlist[0].iat[4,0] * 100
+        percent_cr_exps_lt_1970 = (yearlist[1].iat[0,1] - yearlist[0].iat[0,1]) / yearlist[0].iat[0,1] * 100
+        percent_cr_exps_lte_1983 = (yearlist[1].iat[1,1] - yearlist[0].iat[1,1]) / yearlist[0].iat[1,1] * 100
+        percent_cr_exps_lte_1993 = (yearlist[1].iat[2,1] - yearlist[0].iat[2,1]) / yearlist[0].iat[2,1] * 100
+        percent_cr_exps_gte_1994 = (yearlist[1].iat[3,1] - yearlist[0].iat[3,1]) / yearlist[0].iat[3,1] * 100
+        percent_cr_exps_total = (yearlist[1].iat[4,1] - yearlist[0].iat[4,1]) / yearlist[0].iat[4,1] * 100
 
-        percent_lr_exps_lt_1970 = (yearlist[1].iat[0,1] - yearlist[0].iat[0,1]) / yearlist[0].iat[0,1] * 100
-        percent_lr_exps_lte_1983 = (yearlist[1].iat[1,1] - yearlist[0].iat[1,1]) / yearlist[0].iat[1,1] * 100
-        percent_lr_exps_lte_1993 = (yearlist[1].iat[2,1] - yearlist[0].iat[2,1]) / yearlist[0].iat[2,1] * 100
-        percent_lr_exps_gte_1994 = (yearlist[1].iat[3,1] - yearlist[0].iat[3,1]) / yearlist[0].iat[3,1] * 100
-        percent_lr_exps_total = (yearlist[1].iat[4,1] - yearlist[0].iat[4,1]) / yearlist[0].iat[4,1] * 100
+        percent_lr_exps_lt_1970 = (yearlist[1].iat[0,2] - yearlist[0].iat[0,2]) / yearlist[0].iat[0,2] * 100
+        percent_lr_exps_lte_1983 = (yearlist[1].iat[1,2] - yearlist[0].iat[1,2]) / yearlist[0].iat[1,2] * 100
+        percent_lr_exps_lte_1993 = (yearlist[1].iat[2,2] - yearlist[0].iat[2,2]) / yearlist[0].iat[2,2] * 100
+        percent_lr_exps_gte_1994 = (yearlist[1].iat[3,2] - yearlist[0].iat[3,2]) / yearlist[0].iat[3,2] * 100
+        percent_lr_exps_total = (yearlist[1].iat[4,2] - yearlist[0].iat[4,2]) / yearlist[0].iat[4,2] * 100
 
         percent_change_d = {'CR Percentage Change':[percent_cr_exps_lt_1970,percent_cr_exps_lte_1983,percent_cr_exps_lte_1993,percent_cr_exps_gte_1994,percent_cr_exps_total],
                             'LR Percentage Change':[percent_lr_exps_lt_1970,percent_lr_exps_lte_1983,percent_lr_exps_lte_1993,percent_lr_exps_gte_1994,percent_lr_exps_total]} 
@@ -315,7 +316,8 @@ class MyView(BaseView):
         lastyear_exps_df = yearlist[0]
         thisyear_exps_df = yearlist[1]
         percent_exps_df = yearlist[2]
-        result_df = pd.concat([thisyear_exps_df, thisyear_exps_df], axis=1)
+
+        result_df = pd.concat([lastyear_exps_df[[lastyear,'Year Build','CR Exposure','LR Exposure','Total Change']], thisyear_exps_df[[thisyear,'Year Build','CR Exposure','LR Exposure','Total Change']]], axis=1)
         result_df_1 = pd.concat([result_df, percent_exps_df], axis=1)
 
         resp = make_response(result_df_1.to_csv(index=False,))
