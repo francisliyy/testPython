@@ -41,8 +41,8 @@ class MyView(BaseView):
     def comparisons(lastyear, thisyear, lastsim, thissim):
 
         # define path the different year
-        lastyear_path = '/Users/yli120/Documents/pythonDev/catFundAnalysis/app/data/' + lastyear
-        thisyear_path = '/Users/yli120/Documents/pythonDev/catFundAnalysis/app/data/' + thisyear
+        lastyear_path = 'app/data/' + lastyear
+        thisyear_path = 'app/data/' + thisyear
 
         #lastyear 
         lastyear_cr_policy = lastyear_path + '/cr/CRILM_MidHighRise_AggPolicyLosses.txt'
@@ -220,7 +220,7 @@ class MyView(BaseView):
 
         for year in yeartup:
     	    # define path the different year
-            year_path = '/Users/yli120/Documents/pythonDev/catFundAnalysis/app/data/' + year
+            year_path = 'app/data/' + year
 
             #defin year dataframe 
             year_cr_risk = year_path + '/cr/CRILM_MidHighRise_AggRiskLosses.txt'
@@ -333,7 +333,7 @@ class MyView(BaseView):
 
         for year in yeartup:
     	    # define path the different year
-            year_path = '/Users/yli120/Documents/pythonDev/catFundAnalysis/app/data/' + year
+            year_path = 'app/data/' + year
 
             #defin year dataframe 
             year_cr_risk = year_path + '/cr/CRILM_MidHighRise_AggRiskLosses.txt'
@@ -434,7 +434,7 @@ class MyView(BaseView):
 
         for year in yeartup:
     	    # define path the different year
-            year_path = '/Users/yli120/Documents/pythonDev/catFundAnalysis/app/data/' + year
+            year_path = 'app/data/' + year
 
             #defin year dataframe 
             #year_cr_risk = year_path + '/cr/CRILM_MidHighRise_AggRiskLosses.txt'
@@ -523,7 +523,7 @@ class MyView(BaseView):
 
         for year in yeartup:
     	    # define path the different year
-            year_path = '/Users/yli120/Documents/pythonDev/catFundAnalysis/app/data/' + year
+            year_path = 'app/data/' + year
 
             #defin year dataframe 
             year_cr_risk = year_path + '/cr/CRILM_MidHighRise_AggRiskLosses.txt'
