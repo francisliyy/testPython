@@ -510,7 +510,7 @@ class MyView(BaseView):
         percent_exps_df = constructionlist[2]
         result_df = pd.concat([thisyear_exps_df, percent_exps_df], axis=1)
 
-        return self.render_template('export.html',lyear=lastyear,tyear=thisyear,lsim=2016,tsim=2017,analytype='exportYearbuild',title='Construction Type',
+        return self.render_template('export.html',lyear=lastyear,tyear=thisyear,lsim=2016,tsim=2017,analytype='constructionAna',title='Construction Type',
                                tables=[lastyear_exps_df.to_html(classes='table table-bordered',index=False,formatters={'CR Exposure':flt_num_format,'LR Exposure':flt_num_format,'Total Change':flt_percent_format},columns=[lastyear,'Construction Type','CR Exposure','LR Exposure','Total Change']),
                                        result_df.to_html(classes='table table-bordered',index=False,formatters={'CR Exposure':flt_num_format,'LR Exposure':flt_num_format,'Total Change':flt_percent_format,'CR Percentage Change':flt_percent_format,'LR Percentage Change':flt_percent_format,},columns=[thisyear,'Construction Type','CR Exposure','LR Exposure','Total Change','CR Percentage Change','LR Percentage Change'])])
     
@@ -564,7 +564,7 @@ class MyView(BaseView):
         countylist[1]['CR Percentage Change'] = (countylist[1]['CR Exposure'] - countylist[0]['CR Exposure']) * 100 / countylist[0]['CR Exposure']
         countylist[1]['LR Percentage Change'] = (countylist[1]['LR Exposure'] - countylist[0]['LR Exposure']) * 100 / countylist[0]['LR Exposure']
         countylist[1] = countylist[1].fillna(0)
-        countylist[1].replace(np.inf, 0)
+        countylist[1] = countylist[1].replace(np.inf, 0)
 
 
         return countylist
@@ -585,10 +585,29 @@ class MyView(BaseView):
         thisyear_exps_df = countylist[1]
         #lastyear_exps_df = pd.concat([countylist[0],countylist[1]],axis=1)
 
-        return self.render_template('export.html',lyear=lastyear,tyear=thisyear,lsim=2016,tsim=2017,analytype='exportYearbuild',title='Construction Type',
+        return self.render_template('export.html',lyear=lastyear,tyear=thisyear,lsim=2016,tsim=2017,analytype='exportCounty',title='County',
                                tables=[lastyear_exps_df.to_html(classes='table table-bordered',index=True,formatters={'CR Exposure':flt_num_format,'LR Exposure':flt_num_format,'Total Percentage':flt_percent_format},columns=['CR Exposure','LR Exposure','Total Percentage'])
                                       ,thisyear_exps_df.to_html(classes='table table-bordered',index=True,formatters={'CR Exposure':flt_num_format,'LR Exposure':flt_num_format,'Total Percentage':flt_percent_format,'CR Percentage Change':flt_percent_format,'LR Percentage Change':flt_percent_format},columns=['CR Exposure','LR Exposure','Total Percentage','CR Percentage Change','LR Percentage Change'])])
         
+
+    @expose('/exportCounty/<string:lastyear>/<string:thisyear>/<int:lastsim>/<int:thissim>')
+    @has_access
+    def exportCounty(self, lastyear, thisyear, lastsim, thissim):
+
+        yeartup = (lastyear, thisyear)
+        yearlist = MyView.countyAna(yeartup)
+
+        lastyear_exps_df = yearlist[0]
+        thisyear_exps_df = yearlist[1]
+        #percent_exps_df = yearlist[2]
+        result_df = pd.concat([lastyear_exps_df, thisyear_exps_df], axis=1)
+        #result_df_1 = pd.concat([result_df, percent_exps_df], axis=1)
+
+        resp = make_response(result_df.to_csv(index=True))
+        resp.headers["Content-Disposition"] = "attachment; filename=county.csv"
+        resp.headers["Content-Type"] = "text/csv"
+
+        return resp
 
 #appbuilder.add_view(MyView(), "Method1", category='My View')
 #appbuilder.add_view(MyView(), "Method2", href='/myview/method2/jonh', category='My View')
