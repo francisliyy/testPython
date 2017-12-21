@@ -2,6 +2,7 @@ from flask import render_template, make_response
 from flask_appbuilder import BaseView, expose, has_access
 from app import appbuilder
 import pandas as pd
+import numpy as np
 import logging
 
 
@@ -517,7 +518,7 @@ class MyView(BaseView):
     @staticmethod
     def countyAna(yeartup):
 
-        countylist = [1,2,3]
+        countylist = [1,2]
 
         i = 0
 
@@ -531,8 +532,8 @@ class MyView(BaseView):
 
             year_cr_df_risk = pd.read_csv(year_cr_risk,usecols=['County','LMs', 'LMapp', 'LMc', 'LMale'])
             year_lr_df = pd.read_csv(year_lr,usecols=['County','Units', 'LMs', 'LMapp', 'LMc', 'LMale'])
-            year_cr_df_risk.set_index("County",inplace=True)
-            year_lr_df.set_index("County",inplace=True)
+            #year_cr_df_risk.set_index("County",inplace=True)
+            #year_lr_df.set_index("County",inplace=True)
 
             year_cr_df_risk_group = year_cr_df_risk.groupby(['County']).agg(['sum'])
             year_cr_df_risk_group['CR Exposure'] = year_cr_df_risk_group[['LMs','LMapp','LMc','LMale']].sum(axis=1)
@@ -546,13 +547,25 @@ class MyView(BaseView):
 
             cr_exps_total = df_cr_lr_fillna0['CR Exposure'].sum()
             lr_exps_total = df_cr_lr_fillna0['LR Exposure'].sum()
-            df_cr_lr_fillna0['Total CHange'] = (df_cr_lr_fillna0['CR Exposure'] + df_cr_lr_fillna0['LR Exposure']) / (cr_exps_total + lr_exps_total)
 
+            df_cr_lr_fillna0['Total Percentage'] = (df_cr_lr_fillna0['CR Exposure'] + df_cr_lr_fillna0['LR Exposure']) * 100 / (cr_exps_total + lr_exps_total) 
 
+            df_cr_lr_fillna0_t = df_cr_lr_fillna0.T
+            df_cr_lr_fillna0_t['Total'] = [cr_exps_total,lr_exps_total,100]
+            df_cr_lr_fillna0 = df_cr_lr_fillna0_t.T
 
+            #df_cr_lr_fillna0.loc[:,year] = pd.date_range(1, periods=len(df_cr_lr_fillna0))
+
+            df_cr_lr_fillna0.index.name = 'County'
             countylist[i] = df_cr_lr_fillna0
 
             i = i + 1
+
+        countylist[1]['CR Percentage Change'] = (countylist[1]['CR Exposure'] - countylist[0]['CR Exposure']) * 100 / countylist[0]['CR Exposure']
+        countylist[1]['LR Percentage Change'] = (countylist[1]['LR Exposure'] - countylist[0]['LR Exposure']) * 100 / countylist[0]['LR Exposure']
+        countylist[1] = countylist[1].fillna(0)
+        countylist[1].replace(np.inf, 0)
+
 
         return countylist
 
@@ -569,10 +582,12 @@ class MyView(BaseView):
         countylist = MyView.countyAna(yeartup)
 
         lastyear_exps_df = countylist[0]
+        thisyear_exps_df = countylist[1]
+        #lastyear_exps_df = pd.concat([countylist[0],countylist[1]],axis=1)
 
         return self.render_template('export.html',lyear=lastyear,tyear=thisyear,lsim=2016,tsim=2017,analytype='exportYearbuild',title='Construction Type',
-                               tables=[lastyear_exps_df.to_html(classes='table table-bordered',index=True,formatters={'CR Exposure':flt_num_format,'LR Exposure':flt_num_format},columns=['CR Exposure','LR Exposure'])
-                               ])
+                               tables=[lastyear_exps_df.to_html(classes='table table-bordered',index=True,formatters={'CR Exposure':flt_num_format,'LR Exposure':flt_num_format,'Total Percentage':flt_percent_format},columns=['CR Exposure','LR Exposure','Total Percentage'])
+                                      ,thisyear_exps_df.to_html(classes='table table-bordered',index=True,formatters={'CR Exposure':flt_num_format,'LR Exposure':flt_num_format,'Total Percentage':flt_percent_format,'CR Percentage Change':flt_percent_format,'LR Percentage Change':flt_percent_format},columns=['CR Exposure','LR Exposure','Total Percentage','CR Percentage Change','LR Percentage Change'])])
         
 
 #appbuilder.add_view(MyView(), "Method1", category='My View')
