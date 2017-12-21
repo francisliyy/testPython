@@ -1,0 +1,32 @@
+{% extends "appbuilder/base.html" %}
+{% block content %}
+    
+    {% for table in tables %}
+    	<div>
+    		   <table class="table table-bordered">
+    		   	   <thead>
+				    <tr>
+				      <th scope="col">{{lyear}}</th>
+				      <th scope="col">TOB</th>
+				      <th scope="col">Totoal Unit Count</th>
+				      <th scope="col">%</th>
+				      <th scope="col">Exp</th>
+				      <th scope="col">%</th>
+				      <th scope="col">AAL</th>
+				      <th scope="col">%</th>
+				    </tr>
+				  </thead>
+				  <tbody>
+				  	sdlfdskf;sdfk;dslkf;skd;flkds;kf
+				  	{{table}}
+	               
+	               </tbody>
+               </table>
+    	</div>
+	{% endfor %}
+	<div id="exptocsv">
+      <form action="/myview/{{analytype}}/{{lyear}}/{{tyear}}/{{lsim}}/{{tsim}}" method="GET">
+      	<input type='submit' value='Export Details' />
+      </form>
+    </div>
+{% endblock %}
