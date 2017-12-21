@@ -537,13 +537,21 @@ class MyView(BaseView):
             year_cr_df_risk_group = year_cr_df_risk.groupby(['County']).agg(['sum'])
             year_cr_df_risk_group['CR Exposure'] = year_cr_df_risk_group[['LMs','LMapp','LMc','LMale']].sum(axis=1)
 
+            year_lr_df['exp'] = (year_lr_df.LMs + year_lr_df.LMapp + year_lr_df.LMc + year_lr_df.LMale) * year_lr_df.Units
             year_lr_df_group = year_lr_df.groupby(['County']).agg(['sum'])
-            year_lr_df_group['LR Exposure'] = year_lr_df_group[['LMs','LMapp','LMc','LMale']].sum(axis=1)
+            year_lr_df_group['LR Exposure'] = year_lr_df_group[['exp']].sum(axis=1)
 
             df_cr_lr = pd.concat([year_cr_df_risk_group[['CR Exposure']],year_lr_df_group[['LR Exposure']]],axis=1)
-            df_cr_lr.fillna(0)
+            df_cr_lr_fillna0 = df_cr_lr.fillna(0)
 
-            countylist[i] = df_cr_lr
+            cr_exps_total = df_cr_lr_fillna0['CR Exposure'].sum()
+            lr_exps_total = df_cr_lr_fillna0['LR Exposure'].sum()
+            df_cr_lr_fillna0['Total CHange'] = (df_cr_lr_fillna0['CR Exposure'] + df_cr_lr_fillna0['LR Exposure']) / (cr_exps_total + lr_exps_total)
+
+
+
+            countylist[i] = df_cr_lr_fillna0
+
             i = i + 1
 
         return countylist
