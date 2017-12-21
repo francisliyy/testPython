@@ -380,23 +380,23 @@ class MyView(BaseView):
             regionlist[i] = region_exps_df
             i = i + 1
 
-        percent_cr_exps_Central = (regionlist[1].iat[0,0] - regionlist[0].iat[0,0]) / regionlist[0].iat[0,0] * 100
-        percent_cr_exps_Keys = (regionlist[1].iat[1,0] - regionlist[0].iat[1,0]) / regionlist[0].iat[1,0] * 100
-        percent_cr_exps_North = (regionlist[1].iat[2,0] - regionlist[0].iat[2,0]) / regionlist[0].iat[2,0] * 100
-        percent_cr_exps_South = (regionlist[1].iat[3,0] - regionlist[0].iat[3,0]) / regionlist[0].iat[3,0] * 100
-        percent_cr_exps_total = (regionlist[1].iat[4,0] - regionlist[0].iat[4,0]) / regionlist[0].iat[4,0] * 100
+        percent_cr_exps_Central = (regionlist[1].iat[0,1] - regionlist[0].iat[0,1]) / regionlist[0].iat[0,1] * 100
+        percent_cr_exps_Keys = (regionlist[1].iat[1,1] - regionlist[0].iat[1,1]) / regionlist[0].iat[1,1] * 100
+        percent_cr_exps_North = (regionlist[1].iat[2,1] - regionlist[0].iat[2,1]) / regionlist[0].iat[2,1] * 100
+        percent_cr_exps_South = (regionlist[1].iat[3,1] - regionlist[0].iat[3,1]) / regionlist[0].iat[3,1] * 100
+        percent_cr_exps_total = (regionlist[1].iat[4,1] - regionlist[0].iat[4,1]) / regionlist[0].iat[4,1] * 100
 
-        percent_lr_exps_Central = (regionlist[1].iat[0,1] - regionlist[0].iat[0,1]) / regionlist[0].iat[0,1] * 100
-        percent_lr_exps_Keys = (regionlist[1].iat[1,1] - regionlist[0].iat[1,1]) / regionlist[0].iat[1,1] * 100
-        percent_lr_exps_North = (regionlist[1].iat[2,1] - regionlist[0].iat[2,1]) / regionlist[0].iat[2,1] * 100
-        percent_lr_exps_South = (regionlist[1].iat[3,1] - regionlist[0].iat[3,1]) / regionlist[0].iat[3,1] * 100
-        percent_lr_exps_total = (regionlist[1].iat[4,1] - regionlist[0].iat[4,1]) / regionlist[0].iat[4,1] * 100
+        percent_lr_exps_Central = (regionlist[1].iat[0,2] - regionlist[0].iat[0,2]) / regionlist[0].iat[0,2] * 100
+        percent_lr_exps_Keys = (regionlist[1].iat[1,2] - regionlist[0].iat[1,2]) / regionlist[0].iat[1,2] * 100
+        percent_lr_exps_North = (regionlist[1].iat[2,2] - regionlist[0].iat[2,2]) / regionlist[0].iat[2,2] * 100
+        percent_lr_exps_South = (regionlist[1].iat[3,2] - regionlist[0].iat[3,2]) / regionlist[0].iat[3,2] * 100
+        percent_lr_exps_total = (regionlist[1].iat[4,2] - regionlist[0].iat[4,2]) / regionlist[0].iat[4,2] * 100
 
-        percent_total_exps_Central = (regionlist[1].iat[0,1] + regionlist[1].iat[0,0]  - regionlist[0].iat[0,1] - regionlist[0].iat[0,0]) / (regionlist[0].iat[0,0] + regionlist[0].iat[0,1]) * 100
-        percent_total_exps_Keys = (regionlist[1].iat[1,1] + regionlist[1].iat[1,0] - regionlist[0].iat[1,1] - regionlist[0].iat[1,0]) / (regionlist[0].iat[1,0] + regionlist[0].iat[1,1]) * 100
-        percent_total_exps_North = (regionlist[1].iat[2,1] + regionlist[1].iat[2,0] - regionlist[0].iat[2,1] - regionlist[0].iat[2,0]) / (regionlist[0].iat[2,0] + regionlist[0].iat[2,1]) * 100
-        percent_total_exps_South = (regionlist[1].iat[3,1] + regionlist[1].iat[3,0] - regionlist[0].iat[3,1] - regionlist[0].iat[3,0]) / (regionlist[0].iat[3,0] + regionlist[0].iat[3,1]) * 100
-        percent_total_exps_total = (regionlist[1].iat[4,1] + regionlist[1].iat[4,0] - regionlist[0].iat[4,1] - regionlist[0].iat[4,0]) / (regionlist[0].iat[4,0] + regionlist[0].iat[4,1]) * 100
+        percent_total_exps_Central = (regionlist[1].iat[0,1] + regionlist[1].iat[0,2]  - regionlist[0].iat[0,1] - regionlist[0].iat[0,2]) / (regionlist[0].iat[0,2] + regionlist[0].iat[0,1]) * 100
+        percent_total_exps_Keys = (regionlist[1].iat[1,1] + regionlist[1].iat[1,2] - regionlist[0].iat[1,1] - regionlist[0].iat[1,2]) / (regionlist[0].iat[1,2] + regionlist[0].iat[1,1]) * 100
+        percent_total_exps_North = (regionlist[1].iat[2,1] + regionlist[1].iat[2,2] - regionlist[0].iat[2,1] - regionlist[0].iat[2,2]) / (regionlist[0].iat[2,2] + regionlist[0].iat[2,1]) * 100
+        percent_total_exps_South = (regionlist[1].iat[3,1] + regionlist[1].iat[3,2] - regionlist[0].iat[3,1] - regionlist[0].iat[3,2]) / (regionlist[0].iat[3,2] + regionlist[0].iat[3,1]) * 100
+        percent_total_exps_total = (regionlist[1].iat[4,1] + regionlist[1].iat[4,2] - regionlist[0].iat[4,1] - regionlist[0].iat[4,2]) / (regionlist[0].iat[4,2] + regionlist[0].iat[4,1]) * 100
 
         percent_change_d = {'CR Percentage Change':[percent_cr_exps_Central,percent_cr_exps_Keys,percent_cr_exps_North,percent_cr_exps_South,percent_cr_exps_total],
                             'LR Percentage Change':[percent_lr_exps_Central,percent_lr_exps_Keys,percent_lr_exps_North,percent_lr_exps_South,percent_lr_exps_total],
@@ -423,9 +423,29 @@ class MyView(BaseView):
         percent_exps_df = regionlist[2]
         result_df = pd.concat([thisyear_exps_df, percent_exps_df], axis=1)
 
-        return self.render_template('export.html',lyear=lastyear,tyear=thisyear,lsim=2016,tsim=2017,analytype='exportYearbuild',title='Region',
+        return self.render_template('export.html',lyear=lastyear,tyear=thisyear,lsim=2016,tsim=2017,analytype='exportRegion',title='Region',
                                tables=[lastyear_exps_df.to_html(classes='table table-bordered',index=False,formatters={'CR Exposure':flt_num_format,'LR Exposure':flt_num_format,'Total Change':flt_percent_format},columns=[lastyear,'Region','CR Exposure','LR Exposure','Total Change']),
                                        result_df.to_html(classes='table table-bordered',index=False,formatters={'CR Exposure':flt_num_format,'LR Exposure':flt_num_format,'Total Change':flt_percent_format,'CR Percentage Change':flt_percent_format,'LR Percentage Change':flt_percent_format,'Total Percentage Change':flt_percent_format},columns=[thisyear,'Region','CR Exposure','LR Exposure','Total Change','CR Percentage Change','LR Percentage Change','Total Percentage Change'])])
+
+    @expose('/exportRegion/<string:lastyear>/<string:thisyear>/<int:lastsim>/<int:thissim>')
+    @has_access
+    def exportRegion(self, lastyear, thisyear, lastsim, thissim):
+
+        yeartup = (lastyear, thisyear)
+        yearlist = MyView.regionAna(yeartup)
+
+        lastyear_exps_df = yearlist[0]
+        thisyear_exps_df = yearlist[1]
+        percent_exps_df = yearlist[2]
+
+        result_df = pd.concat([lastyear_exps_df[[lastyear,'Region','CR Exposure','LR Exposure','Total Change']], thisyear_exps_df[[thisyear,'Region','CR Exposure','LR Exposure','Total Change']]], axis=1)
+        result_df_1 = pd.concat([result_df, percent_exps_df], axis=1)
+
+        resp = make_response(result_df_1.to_csv(index=False,))
+        resp.headers["Content-Disposition"] = "attachment; filename=Region.csv"
+        resp.headers["Content-Type"] = "text/csv"
+
+        return resp
 
     @staticmethod
     def constructionAna(yeartup):
