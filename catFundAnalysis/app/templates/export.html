@@ -4,9 +4,17 @@
     {% for table in tables %}
     	<div>{{table | safe}}</div>
 	{% endfor %}
-	<div id="exptocsv">
-      <form action="/myview/{{analytype}}/{{lyear}}/{{tyear}}/{{lsim}}/{{tsim}}" method="GET">
-      	<input type='submit' value='Export Details' />
-      </form>
-    </div>
+	<div>
+		<div id="exptocsv" style="float: left">
+	      <form action="/myview/{{analytype}}/{{lyear}}/{{tyear}}/{{lsim}}/{{tsim}}" method="GET">
+	      	<input type='submit' value='Export Details' />
+	      </form>
+	    </div>
+	    <div id="ratemarking" style="float: left;margin-left: 20px">
+	      <form action="/myview/{{ratemarking}}/{{tyear}}/{{tsim}}" method="GET">
+	      	<input type='submit' value='Export ratemarking' />
+	      </form>
+	    </div>
+	</div>
+</div>
 {% endblock %}

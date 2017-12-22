@@ -1,9 +1,11 @@
-from flask import render_template, make_response
+from flask import render_template, make_response, send_file
 from flask_appbuilder import BaseView, expose, has_access
 from app import appbuilder
+from io import BytesIO
 import pandas as pd
 import numpy as np
 import logging
+
 
 
 log = logging.getLogger(__name__)
@@ -176,6 +178,70 @@ class MyView(BaseView):
         return [lastyear_comparison_df,thisyear_comparison_df]   
         #thisyear_comparison_df.style.format({'Unit Inc (%)':'{:.2%}','Exp Inc (%)':'{:.2%}','AAL Inc (%)':'{:.2%}'})    
 
+
+    @staticmethod
+    def retemarking(thisyear, thissim):
+
+        sheetlist = [1,2]
+
+        # define path
+        thisyear_path = 'app/data/' + thisyear
+
+        #total
+        thisyear_cr_risk = thisyear_path + '/cr/CRILM_MidHighRise_AggRiskLosses.txt'
+        thisyear_lr = thisyear_path + '/pr_lr/valid_data.csv'
+        thisyear_residential = thisyear_path + '/pr_residential/valid_data.csv'
+        thisyear_mobile = thisyear_path + '/pr_mobile/valid_data.csv'
+        thisyear_rental = thisyear_path + '/pr_rental/valid_data.csv'
+        thisyear_condo = thisyear_path + '/pr_condo/valid_data.csv'
+
+        thisyear_cr_df_risk = pd.read_csv(thisyear_cr_risk,usecols=['LMs', 'LMapp', 'LMc', 'LMale', 'RiskTotalLoss'])        
+        thisyear_lr_df = pd.read_csv(thisyear_lr,usecols=['Units', 'LMs', 'LMapp', 'LMc', 'LMale', 'TotalLoss'])
+        thisyear_residential_df = pd.read_csv(thisyear_residential,usecols=['Units', 'LMs', 'LMapp', 'LMc', 'LMale', 'TotalLoss'])
+        thisyear_mobile_df = pd.read_csv(thisyear_mobile,usecols=['Units', 'LMs', 'LMapp', 'LMc', 'LMale', 'TotalLoss'])
+        thisyear_rental_df = pd.read_csv(thisyear_rental,usecols=['Units', 'LMs', 'LMapp', 'LMc', 'LMale', 'TotalLoss'])
+        thisyear_condo_df = pd.read_csv(thisyear_condo,usecols=['Units', 'LMs', 'LMapp', 'LMc', 'LMale', 'TotalLoss'])
+
+        thisyear_commercial_aal = thisyear_cr_df_risk.RiskTotalLoss.sum() / thissim + thisyear_lr_df.TotalLoss.sum()
+        thisyear_residential_aal = thisyear_residential_df.TotalLoss.sum()
+        thisyear_mobile_aal = thisyear_mobile_df.TotalLoss.sum()
+        thisyear_rental_aal = thisyear_rental_df.TotalLoss.sum()
+        thisyear_condo_aal = thisyear_condo_df.TotalLoss.sum()
+        thisyear_total_aal = thisyear_commercial_aal + thisyear_residential_aal + thisyear_mobile_aal + thisyear_rental_aal + thisyear_condo_aal
+
+        thisyear_total_d = {'TOB Code': [1,2,3,4,6,7,],
+                                 'TOB Name' : ['Commercial','Residential','Mobile Homes','Tenants','Condos','TOTAL'],
+                                 'AAL' : [thisyear_commercial_aal,thisyear_residential_aal,thisyear_mobile_aal,thisyear_rental_aal,thisyear_condo_aal,thisyear_total_aal]}
+        thisyear_total_df = pd.DataFrame(data=thisyear_total_d)
+        sheetlist[0] = thisyear_total_df
+
+        #deductible
+        thisyear_cr_de = thisyear_path + '/cr/CRILM_MidHighRise_StormLosses.txt'
+        thisyear_lr_de = thisyear_path + '/pr_lr/Storm_Losses.csv'
+        thisyear_residential_de = thisyear_path + '/pr_residential/Storm_Losses.csv'
+        thisyear_mobile_de = thisyear_path + '/pr_mobile/Storm_Losses.csv'
+        thisyear_rental_de = thisyear_path + '/pr_rental/Storm_Losses.csv'
+        thisyear_condo_de = thisyear_path + '/pr_condo/Storm_Losses.csv'
+
+        thisyear_cr_df_de = pd.read_csv(thisyear_cr_de, header = None, names = ['A','Year','CRL'])        
+        thisyear_lr_df_de = pd.read_csv(thisyear_lr_de, header = None, names = ['A','Year','LRL'])        
+        thisyear_commercial_df_de = pd.read_csv(thisyear_lr_de, header = None, names = ['A','Year','LRL'])
+        thisyear_residential_df_de = pd.read_csv(thisyear_residential_de, header = None, names = ['A','Year','Residential Loss'])
+        thisyear_mobile_df_de = pd.read_csv(thisyear_mobile_de, header = None, names = ['A','Year','Mobile Home Loss'])
+        thisyear_rental_df_de = pd.read_csv(thisyear_rental_de, header = None, names = ['A','Year','Tenants Loss'])
+        thisyear_condo_df_de = pd.read_csv(thisyear_condo_de, header = None, names = ['A','Year','Condo Units Loss'])
+
+        thisyear_cr_df_de_1 = thisyear_cr_df_de.sort_values(by='Year')
+        thisyear_lr_df_de['Commercial Loss'] = thisyear_cr_df_de_1.CRL/58000 + thisyear_lr_df_de.LRL
+        result_de = pd.concat([thisyear_lr_df_de[['Year','Commercial Loss']], thisyear_residential_df_de[['Residential Loss']]], axis=1)
+        result_de = pd.concat([result_de, thisyear_mobile_df_de[['Mobile Home Loss']]], axis=1)
+        result_de = pd.concat([result_de, thisyear_rental_df_de[['Tenants Loss']]], axis=1)
+        result_de = pd.concat([result_de, thisyear_condo_df_de[['Condo Units Loss']]], axis=1)
+        result_de['Total Loss'] = result_de['Commercial Loss'] + result_de['Residential Loss'] + result_de['Mobile Home Loss'] + result_de['Tenants Loss'] + result_de['Condo Units Loss']
+        sheetlist[1] = result_de
+
+        return sheetlist
+    
     @expose('/showComparisons/<string:lastyear>/<string:thisyear>/<int:lastsim>/<int:thissim>')
     @has_access
     def showComparisons(self, lastyear, thisyear, lastsim, thissim):
@@ -189,7 +255,7 @@ class MyView(BaseView):
         lastyear_comparison_df = tables[0]
         thisyear_comparison_df = tables[1]
 
-        return self.render_template('export.html',lyear=lastyear,tyear=thisyear,lsim=lastsim,tsim=thissim,analytype='exportComparisons',title='CatFund Comparisons',
+        return self.render_template('export.html',lyear=lastyear,tyear=thisyear,lsim=lastsim,tsim=thissim,analytype='exportComparisons',title='CatFund Comparisons',ratemarking='exportRateMarking',
                                tables=[lastyear_comparison_df.to_html(classes='table table-bordered',index=False,formatters={'Total Unit Count':int_num_format,'Exp':flt_num_format,'AAL':flt_num_format},columns=[lastyear,'TOB','Total Unit Count','Unit Inc (%)','Exp','Exp Inc (%)','AAL','AAL Inc (%)']),
                                        thisyear_comparison_df.to_html(classes='table table-bordered',index=False,formatters={'Total Unit Count':int_num_format,'Unit Inc (%)':flt_percent_format,'Exp':flt_num_format,'Exp Inc (%)':flt_percent_format,'AAL':flt_num_format,'AAL Inc (%)':flt_percent_format},columns=[thisyear,'TOB','Total Unit Count','Unit Inc (%)','Exp','Exp Inc (%)','AAL','AAL Inc (%)'])])
 
@@ -211,6 +277,47 @@ class MyView(BaseView):
         resp.headers["Content-Type"] = "text/csv"
 
         return resp
+
+    @expose('/exportRateMarking/<string:thisyear>/<int:thissim>')
+    @has_access
+    def exportRateMarking(self, thisyear, thissim):
+
+        tables = MyView.retemarking(thisyear,thissim)
+        total_df = tables[0][['TOB Code','TOB Name','AAL']]
+        deductible_df = tables[1][['Year','Commercial Loss','Total Loss','Residential Loss','Mobile Home Loss','Tenants Loss','Condo Units Loss']]
+        deductible_df.index.name = 'Event ID'
+        deductible_df.index = np.arange(1,len(deductible_df)+1)
+
+        output = BytesIO()
+        writer = pd.ExcelWriter(output, engine='xlsxwriter')
+        
+        total_df.to_excel(writer, sheet_name='Control Totals',index=False,float_format="%.2f")
+        deductible_df.to_excel(writer, sheet_name='Actual deductible - With Demand',index=True,float_format="%.2f")
+        worksheet1 = writer.sheets['Control Totals']
+        worksheet2 = writer.sheets['Actual deductible - With Demand']
+        
+        workbook = writer.book
+        money_fmt = workbook.add_format({'num_format': '$#,##0.00'})
+        xlsformat = workbook.add_format()
+
+        worksheet1.set_column('C:C', 12, money_fmt)
+        worksheet2.set_column('C:H', 12, money_fmt)
+        #the writer has done its job
+        writer.close()
+
+        #go back to the beginning of the stream
+        output.seek(0)
+        #df = pd.concat([lastyear_comparison_df[['TOB','Total Unit Count','Unit Inc (%)','Exp','Exp Inc (%)','AAL','AAL Inc (%)']],thisyear_comparison_df[['TOB','Total Unit Count','Unit Inc (%)','Exp','Exp Inc (%)','AAL','AAL Inc (%)']]])
+        #index = 0
+        #first_col = [lastyear,lastyear,lastyear,lastyear,lastyear,lastyear,thisyear,thisyear,thisyear,thisyear,thisyear,thisyear]
+        #df.insert(loc=index,column='year',value=first_col)
+
+        #resp = make_response(writer)
+        #resp.headers["Content-Disposition"] = "attachment; filename=ratemarking.xlsx"
+        #resp.headers["Content-Type"] = "text/csv"
+
+        return send_file(output, attachment_filename="retemarking.xlsx", as_attachment=True)
+    
 
     @staticmethod
     def yearbuild(yeartup):
