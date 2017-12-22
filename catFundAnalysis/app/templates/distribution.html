@@ -1,0 +1,36 @@
+{% extends "appbuilder/base.html" %}
+{% block content %}
+	<h1>{{title}}</h1>
+
+    <!-- Single button -->
+	<!--div class="btn-group" id="tobDropDn">
+	  <button type="button" class="btn btn-success dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+	    Type of Building <span class="caret"></span>
+	  </button>
+	  <ul class="dropdown-menu">
+	    <li><a href="/myview/showYearbuild/{{lyear}}/{{tyear}}">Commercial</a></li>
+	    <li><a href="#">Residential</a></li>
+	    <li><a href="#">Mobile Homes</a></li>
+	    <li><a href="#">Condos</a></li>
+	  </ul>
+	</div--> 
+
+    {% for table in tables %}
+    	<div>{{table | safe}}</div>
+	{% endfor %}
+	<div id="exptocsv">
+      <form action="/myview/{{analytype}}/{{lyear}}/{{tyear}}/{{lsim}}/{{tsim}}" method="GET">
+      	<input type='submit' value='Export Details' />
+      </form>
+    </div>
+    <script type="text/javascript">
+	
+		$(function(){
+			$('#tobDropDn').on('show.bs.dropdown', function () {
+			  console.log (this);
+			})
+		});
+
+    </script>
+{% endblock %}
+

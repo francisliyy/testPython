@@ -302,7 +302,7 @@ class MyView(BaseView):
         percent_exps_df = yearlist[2]
         result_df = pd.concat([thisyear_exps_df, percent_exps_df], axis=1)
 
-        return self.render_template('export.html',lyear=lastyear,tyear=thisyear,lsim=2016,tsim=2017,analytype='exportYearbuild',title='Yearbuilt',
+        return self.render_template('distribution.html',lyear=lastyear,tyear=thisyear,lsim=2016,tsim=2017,analytype='exportYearbuild',title='Yearbuilt',
                                tables=[lastyear_exps_df.to_html(classes='table table-bordered',index=False,formatters={'CR Exposure':flt_num_format,'LR Exposure':flt_num_format,'Total Change':flt_percent_format},columns=[lastyear,'Year Build','CR Exposure','LR Exposure','Total Change']),
                                        result_df.to_html(classes='table table-bordered',index=False,formatters={'CR Exposure':flt_num_format,'LR Exposure':flt_num_format,'Total Change':flt_percent_format,'CR Percentage Change':flt_percent_format,'LR Percentage Change':flt_percent_format},columns=[thisyear,'Year Build','CR Exposure','LR Exposure','Total Change','CR Percentage Change','LR Percentage Change'])])
 
@@ -423,7 +423,7 @@ class MyView(BaseView):
         percent_exps_df = regionlist[2]
         result_df = pd.concat([thisyear_exps_df, percent_exps_df], axis=1)
 
-        return self.render_template('export.html',lyear=lastyear,tyear=thisyear,lsim=2016,tsim=2017,analytype='exportRegion',title='Region',
+        return self.render_template('distribution.html',lyear=lastyear,tyear=thisyear,lsim=2016,tsim=2017,analytype='exportRegion',title='Region',
                                tables=[lastyear_exps_df.to_html(classes='table table-bordered',index=False,formatters={'CR Exposure':flt_num_format,'LR Exposure':flt_num_format,'Total Change':flt_percent_format},columns=[lastyear,'Region','CR Exposure','LR Exposure','Total Change']),
                                        result_df.to_html(classes='table table-bordered',index=False,formatters={'CR Exposure':flt_num_format,'LR Exposure':flt_num_format,'Total Change':flt_percent_format,'CR Percentage Change':flt_percent_format,'LR Percentage Change':flt_percent_format,'Total Percentage Change':flt_percent_format},columns=[thisyear,'Region','CR Exposure','LR Exposure','Total Change','CR Percentage Change','LR Percentage Change','Total Percentage Change'])])
 
@@ -531,7 +531,7 @@ class MyView(BaseView):
         percent_exps_df = constructionlist[2]
         result_df = pd.concat([thisyear_exps_df, percent_exps_df], axis=1)
 
-        return self.render_template('export.html',lyear=lastyear,tyear=thisyear,lsim=2016,tsim=2017,analytype='exportConstruction',title='Construction Type',
+        return self.render_template('distribution.html',lyear=lastyear,tyear=thisyear,lsim=2016,tsim=2017,analytype='exportConstruction',title='Construction Type',
                                tables=[lastyear_exps_df.to_html(classes='table table-bordered',index=False,formatters={'CR Exposure':flt_num_format,'LR Exposure':flt_num_format,'Total Change':flt_percent_format},columns=[lastyear,'Construction Type','CR Exposure','LR Exposure','Total Change']),
                                        result_df.to_html(classes='table table-bordered',index=False,formatters={'CR Exposure':flt_num_format,'LR Exposure':flt_num_format,'Total Change':flt_percent_format,'CR Percentage Change':flt_percent_format,'LR Percentage Change':flt_percent_format,},columns=[thisyear,'Construction Type','CR Exposure','LR Exposure','Total Change','CR Percentage Change','LR Percentage Change'])])
     
@@ -626,7 +626,7 @@ class MyView(BaseView):
         thisyear_exps_df = countylist[1]
         #lastyear_exps_df = pd.concat([countylist[0],countylist[1]],axis=1)
 
-        return self.render_template('export.html',lyear=lastyear,tyear=thisyear,lsim=2016,tsim=2017,analytype='exportCounty',title='County',
+        return self.render_template('distribution.html',lyear=lastyear,tyear=thisyear,lsim=2016,tsim=2017,analytype='exportCounty',title='County',
                                tables=[lastyear_exps_df.to_html(classes='table table-bordered',index=True,formatters={'CR Exposure':flt_num_format,'LR Exposure':flt_num_format,'Total Percentage':flt_percent_format},columns=['CR Exposure','LR Exposure','Total Percentage'])
                                       ,thisyear_exps_df.to_html(classes='table table-bordered',index=True,formatters={'CR Exposure':flt_num_format,'LR Exposure':flt_num_format,'Total Percentage':flt_percent_format,'CR Percentage Change':flt_percent_format,'LR Percentage Change':flt_percent_format},columns=['CR Exposure','LR Exposure','Total Percentage','CR Percentage Change','LR Percentage Change'])])
         
