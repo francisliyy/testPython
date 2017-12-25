@@ -731,7 +731,7 @@ class MyView(BaseView):
         return resp
 
     @staticmethod
-    def countyAna(yeartup):
+    def countyAna(yeartup,tob):
 
         countylist = [1,2]
 
@@ -741,32 +741,34 @@ class MyView(BaseView):
             # define path the different year
             year_path = 'app/data/' + year
 
-            #defin year dataframe 
-            year_cr_risk = year_path + '/cr/CRILM_MidHighRise_AggRiskLosses.txt'
-            year_lr = year_path + '/pr_lr/valid_data.csv' 
-
-            year_cr_df_risk = pd.read_csv(year_cr_risk,usecols=['County','LMs', 'LMapp', 'LMc', 'LMale'])
+            year_lr = year_path + '/'+tob+'/valid_data.csv'
             year_lr_df = pd.read_csv(year_lr,usecols=['County','Units', 'LMs', 'LMapp', 'LMc', 'LMale'])
-            #year_cr_df_risk.set_index("County",inplace=True)
-            #year_lr_df.set_index("County",inplace=True)
-
-            year_cr_df_risk_group = year_cr_df_risk.groupby(['County']).agg(['sum'])
-            year_cr_df_risk_group['CR Exposure'] = year_cr_df_risk_group[['LMs','LMapp','LMc','LMale']].sum(axis=1)
-
             year_lr_df['exp'] = (year_lr_df.LMs + year_lr_df.LMapp + year_lr_df.LMc + year_lr_df.LMale) * year_lr_df.Units
             year_lr_df_group = year_lr_df.groupby(['County']).agg(['sum'])
-            year_lr_df_group['LR Exposure'] = year_lr_df_group[['exp']].sum(axis=1)
+            year_lr_df_group['Exposure'] = year_lr_df_group[['exp']].sum(axis=1)            
 
-            df_cr_lr = pd.concat([year_cr_df_risk_group[['CR Exposure']],year_lr_df_group[['LR Exposure']]],axis=1)
-            df_cr_lr_fillna0 = df_cr_lr.fillna(0)
+            if tob == 'pr_lr':
+                year_cr_risk = year_path + '/cr/CRILM_MidHighRise_AggRiskLosses.txt'
+                year_cr_df_risk = pd.read_csv(year_cr_risk,usecols=['County','LMs', 'LMapp', 'LMc', 'LMale'])
+                year_cr_df_risk_group = year_cr_df_risk.groupby(['County']).agg(['sum'])
+                year_cr_df_risk_group['CR Exposure'] = year_cr_df_risk_group[['LMs','LMapp','LMc','LMale']].sum(axis=1)
+                year_lr_df_group['LR Exposure'] = year_lr_df_group[['exp']].sum(axis=1)
+                df_cr_lr = pd.concat([year_cr_df_risk_group[['CR Exposure']],year_lr_df_group[['LR Exposure']]],axis=1)
+                df_cr_lr_fillna0 = df_cr_lr.fillna(0)
+                cr_exps_total = df_cr_lr_fillna0['CR Exposure'].sum()                
+                lr_exps_total = df_cr_lr_fillna0['LR Exposure'].sum()
+                df_cr_lr_fillna0['Total Percentage'] = (df_cr_lr_fillna0['CR Exposure'] + df_cr_lr_fillna0['LR Exposure']) * 100 / (cr_exps_total + lr_exps_total) 
+                df_cr_lr_fillna0_t = df_cr_lr_fillna0.T
+                df_cr_lr_fillna0_t['Total'] = [cr_exps_total,lr_exps_total,100]
+                
+            else:
+                df_cr_lr = pd.concat([year_lr_df_group[['Exposure']]],axis=1)
+                df_cr_lr_fillna0 = df_cr_lr.fillna(0)
+                lr_exps_total = df_cr_lr_fillna0['Exposure'].sum()
+                df_cr_lr_fillna0['Total Percentage'] = (df_cr_lr_fillna0['Exposure']) * 100 / (lr_exps_total)
+                df_cr_lr_fillna0_t = df_cr_lr_fillna0.T
+                df_cr_lr_fillna0_t['Total'] = [lr_exps_total,100]
 
-            cr_exps_total = df_cr_lr_fillna0['CR Exposure'].sum()
-            lr_exps_total = df_cr_lr_fillna0['LR Exposure'].sum()
-
-            df_cr_lr_fillna0['Total Percentage'] = (df_cr_lr_fillna0['CR Exposure'] + df_cr_lr_fillna0['LR Exposure']) * 100 / (cr_exps_total + lr_exps_total) 
-
-            df_cr_lr_fillna0_t = df_cr_lr_fillna0.T
-            df_cr_lr_fillna0_t['Total'] = [cr_exps_total,lr_exps_total,100]
             df_cr_lr_fillna0 = df_cr_lr_fillna0_t.T
 
             #df_cr_lr_fillna0.loc[:,year] = pd.date_range(1, periods=len(df_cr_lr_fillna0))
@@ -776,11 +778,14 @@ class MyView(BaseView):
 
             i = i + 1
 
-        countylist[1]['CR Percentage Change'] = (countylist[1]['CR Exposure'] - countylist[0]['CR Exposure']) * 100 / countylist[0]['CR Exposure']
-        countylist[1]['LR Percentage Change'] = (countylist[1]['LR Exposure'] - countylist[0]['LR Exposure']) * 100 / countylist[0]['LR Exposure']
+        if tob == 'pr_lr':
+            countylist[1]['CR Percentage Change'] = (countylist[1]['CR Exposure'] - countylist[0]['CR Exposure']) * 100 / countylist[0]['CR Exposure']
+            countylist[1]['LR Percentage Change'] = (countylist[1]['LR Exposure'] - countylist[0]['LR Exposure']) * 100 / countylist[0]['LR Exposure']      
+        else:
+            countylist[1]['Percentage Change'] = (countylist[1]['Exposure'] - countylist[0]['Exposure']) * 100 / countylist[0]['Exposure']
+        
         countylist[1] = countylist[1].fillna(0)
         countylist[1] = countylist[1].replace(np.inf, 0)
-
 
         return countylist
 
@@ -788,22 +793,30 @@ class MyView(BaseView):
     @has_access
     def showCounty(self, lastyear, thisyear):
 
+        tobSelectValue = request.args.get('type_of_building') if request.args.get('type_of_building') else 'pr_lr' 
+        tobform = TOBForm(type_of_building=tobSelectValue)
+
         # number format
         int_num_format = lambda x: '{:,}'.format(x)
         flt_num_format = lambda x: '${:,.2f}'.format(x)
         flt_percent_format = lambda x: '{:,.2f}%'.format(x)
 
         yeartup = (lastyear, thisyear)
-        countylist = MyView.countyAna(yeartup)
+        countylist = MyView.countyAna(yeartup,tobSelectValue)
 
         lastyear_exps_df = countylist[0]
         thisyear_exps_df = countylist[1]
         #lastyear_exps_df = pd.concat([countylist[0],countylist[1]],axis=1)
 
-        return self.render_template('distribution.html',lyear=lastyear,tyear=thisyear,lsim=2016,tsim=2017,analytype='exportCounty',title='County',
+        if tobSelectValue == 'pr_lr':
+            return self.render_template('distribution.html',lyear=lastyear,tyear=thisyear,lsim=2016,tsim=2017,analytype='County',title='County',form=tobform,
                                tables=[lastyear_exps_df.to_html(classes='table table-bordered',index=True,formatters={'CR Exposure':flt_num_format,'LR Exposure':flt_num_format,'Total Percentage':flt_percent_format},columns=['CR Exposure','LR Exposure','Total Percentage'])
                                       ,thisyear_exps_df.to_html(classes='table table-bordered',index=True,formatters={'CR Exposure':flt_num_format,'LR Exposure':flt_num_format,'Total Percentage':flt_percent_format,'CR Percentage Change':flt_percent_format,'LR Percentage Change':flt_percent_format},columns=['CR Exposure','LR Exposure','Total Percentage','CR Percentage Change','LR Percentage Change'])])
-        
+        else:
+            return self.render_template('distribution.html',lyear=lastyear,tyear=thisyear,lsim=2016,tsim=2017,analytype='County',title='County',form=tobform,
+                               tables=[lastyear_exps_df.to_html(classes='table table-bordered',index=True,formatters={'Exposure':flt_num_format,'Total Percentage':flt_percent_format},columns=['Exposure','Total Percentage'])
+                                      ,thisyear_exps_df.to_html(classes='table table-bordered',index=True,formatters={'Exposure':flt_num_format,'Total Percentage':flt_percent_format,'Percentage Change':flt_percent_format},columns=['Exposure','Total Percentage','Percentage Change'])])
+
 
     @expose('/exportCounty/<string:lastyear>/<string:thisyear>/<int:lastsim>/<int:thissim>')
     @has_access
