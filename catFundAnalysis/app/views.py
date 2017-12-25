@@ -344,7 +344,6 @@ class MyView(BaseView):
             lr_exps_gte_1994 = ((year_lr_df_gte_1994.LMs + year_lr_df_gte_1994.LMapp + year_lr_df_gte_1994.LMc + year_lr_df_gte_1994.LMale) * year_lr_df_gte_1994.Units).sum()
             lr_exps_total = lr_exps_lt_1970 + (0 if np.isnan(lr_exps_lte_1983) else lr_exps_lte_1983) + lr_exps_lte_1993 + lr_exps_gte_1994
 
-            #defin year dataframe
             if tob == 'pr_lr': 
                 year_cr_risk = year_path + '/cr/CRILM_MidHighRise_AggRiskLosses.txt'
                 year_cr_df_risk = pd.read_csv(year_cr_risk,usecols=['YearBuilt','LMs', 'LMapp', 'LMc', 'LMale'])
@@ -434,11 +433,11 @@ class MyView(BaseView):
         result_df = pd.concat([thisyear_exps_df, percent_exps_df], axis=1)
 
         if tobSelectValue == 'pr_lr' :
-            return self.render_template('distribution.html',lyear=lastyear,tyear=thisyear,lsim=2016,tsim=2017,analytype='exportYearbuild',title='Yearbuilt',form=tobform,
+            return self.render_template('distribution.html',lyear=lastyear,tyear=thisyear,lsim=2016,tsim=2017,analytype='Yearbuild',title='Yearbuilt',form=tobform,
                                tables=[lastyear_exps_df.to_html(classes='table table-bordered',index=False,formatters={'CR Exposure':flt_num_format,'LR Exposure':flt_num_format,'Total Change':flt_percent_format},columns=[lastyear,'Year Build','CR Exposure','LR Exposure','Total Change']),
                                        result_df.to_html(classes='table table-bordered',index=False,formatters={'CR Exposure':flt_num_format,'LR Exposure':flt_num_format,'Total Change':flt_percent_format,'CR Percentage Change':flt_percent_format,'LR Percentage Change':flt_percent_format},columns=[thisyear,'Year Build','CR Exposure','LR Exposure','Total Change','CR Percentage Change','LR Percentage Change'])])
         else:
-            return self.render_template('distribution.html',lyear=lastyear,tyear=thisyear,lsim=2016,tsim=2017,analytype='exportYearbuild',title='Yearbuilt',form=tobform,
+            return self.render_template('distribution.html',lyear=lastyear,tyear=thisyear,lsim=2016,tsim=2017,analytype='Yearbuild',title='Yearbuilt',form=tobform,
                                tables=[lastyear_exps_df.to_html(classes='table table-bordered',index=False,formatters={'Exposure':flt_num_format,'Total Change':flt_percent_format},columns=[lastyear,'Year Build','Exposure','Total Change']),
                                        result_df.to_html(classes='table table-bordered',index=False,formatters={'Exposure':flt_num_format,'Total Change':flt_percent_format,'Percentage Change':flt_percent_format},columns=[thisyear,'Year Build','Exposure','Total Change','Percentage Change'])])
 
@@ -463,7 +462,7 @@ class MyView(BaseView):
         return resp
 
     @staticmethod
-    def regionAna(yeartup):
+    def regionAna(yeartup,tob):
 
         regionlist = [1,2,3]
 
@@ -473,47 +472,57 @@ class MyView(BaseView):
             # define path the different year
             year_path = 'app/data/' + year
 
-            #defin year dataframe 
-            year_cr_risk = year_path + '/cr/CRILM_MidHighRise_AggRiskLosses.txt'
-            year_lr = year_path + '/pr_lr/valid_data.csv'
-
-            year_cr_df_risk = pd.read_csv(year_cr_risk,usecols=['Region','LMs', 'LMapp', 'LMc', 'LMale'])
-            year_lr_df = pd.read_csv(year_lr,usecols=['Region','Units', 'LMs', 'LMapp', 'LMc', 'LMale'])  
-            
-            year_cr_df_risk_Central = year_cr_df_risk[year_cr_df_risk['Region'] == 'Central']
-            year_cr_df_risk_Keys = year_cr_df_risk[year_cr_df_risk['Region'] == 'Keys']
-            year_cr_df_risk_North = year_cr_df_risk[year_cr_df_risk['Region'] == 'North']
-            year_cr_df_risk_South = year_cr_df_risk[year_cr_df_risk['Region'] == 'South']
+            year_lr = year_path + '/'+tob+'/valid_data.csv'
+            year_lr_df = pd.read_csv(year_lr,usecols=['Region','Units', 'LMs', 'LMapp', 'LMc', 'LMale'])
 
             year_lr_df_Central = year_lr_df[year_lr_df['Region'] == 'Central']
             year_lr_df_Keys = year_lr_df[year_lr_df['Region'] == 'Keys']
             year_lr_df_North = year_lr_df[year_lr_df['Region'] == 'North']
             year_lr_df_South = year_lr_df[year_lr_df['Region'] == 'South']
 
-            cr_exps_Central = year_cr_df_risk_Central.LMs.sum() + year_cr_df_risk_Central.LMapp.sum() + year_cr_df_risk_Central.LMc.sum() + year_cr_df_risk_Central.LMale.sum()
             lr_exps_Central = ((year_lr_df_Central.LMs + year_lr_df_Central.LMapp + year_lr_df_Central.LMc + year_lr_df_Central.LMale) * year_lr_df_Central.Units).sum()
-            cr_exps_Keys = year_cr_df_risk_Keys.LMs.sum() + year_cr_df_risk_Keys.LMapp.sum() + year_cr_df_risk_Keys.LMc.sum() + year_cr_df_risk_Keys.LMale.sum()
             lr_exps_Keys = ((year_lr_df_Keys.LMs + year_lr_df_Keys.LMapp + year_lr_df_Keys.LMc + year_lr_df_Keys.LMale) * year_lr_df_Keys.Units).sum()
-            cr_exps_North = year_cr_df_risk_North.LMs.sum() + year_cr_df_risk_North.LMapp.sum() + year_cr_df_risk_North.LMc.sum() + year_cr_df_risk_North.LMale.sum()
             lr_exps_North = ((year_lr_df_North.LMs + year_lr_df_North.LMapp + year_lr_df_North.LMc + year_lr_df_North.LMale) * year_lr_df_North.Units).sum()
-            cr_exps_South = year_cr_df_risk_South.LMs.sum() + year_cr_df_risk_South.LMapp.sum() + year_cr_df_risk_South.LMc.sum() + year_cr_df_risk_South.LMale.sum()
             lr_exps_South = ((year_lr_df_South.LMs + year_lr_df_South.LMapp + year_lr_df_South.LMc + year_lr_df_South.LMale) * year_lr_df_South.Units).sum()
-            cr_exps_total = cr_exps_Central + cr_exps_Keys + cr_exps_North + cr_exps_South
             lr_exps_total = lr_exps_Central + lr_exps_Keys + lr_exps_North + lr_exps_South
 
-            change_exps_Central = (cr_exps_Central + lr_exps_Central) / (cr_exps_total + lr_exps_total) * 100
-            change_exps_Keys = (cr_exps_Keys + lr_exps_Keys) / (cr_exps_total + lr_exps_total) * 100
-            change_exps_North = (cr_exps_North + lr_exps_North) / (cr_exps_total + lr_exps_total) * 100
-            change_exps_South = (cr_exps_South + lr_exps_South) / (cr_exps_total + lr_exps_total) * 100
+            if tob == 'pr_lr':
+                year_cr_risk = year_path + '/cr/CRILM_MidHighRise_AggRiskLosses.txt'
+                year_cr_df_risk = pd.read_csv(year_cr_risk,usecols=['Region','LMs', 'LMapp', 'LMc', 'LMale'])
+                year_cr_df_risk_Central = year_cr_df_risk[year_cr_df_risk['Region'] == 'Central']
+                year_cr_df_risk_Keys = year_cr_df_risk[year_cr_df_risk['Region'] == 'Keys']
+                year_cr_df_risk_North = year_cr_df_risk[year_cr_df_risk['Region'] == 'North']
+                year_cr_df_risk_South = year_cr_df_risk[year_cr_df_risk['Region'] == 'South']
 
-            region_exps_d = {year: [1,2,3,4,5],
-                            'Region':['Central','Keys','North','South','Total'],
-                            'CR Exposure':[cr_exps_Central,cr_exps_Keys,cr_exps_North,cr_exps_South,cr_exps_total],
-                            'LR Exposure':[lr_exps_Central,lr_exps_Keys,lr_exps_North,lr_exps_South,lr_exps_total],
-                            'Total Change':[change_exps_Central,change_exps_Keys,change_exps_North,change_exps_South,100]}
+                cr_exps_Central = year_cr_df_risk_Central.LMs.sum() + year_cr_df_risk_Central.LMapp.sum() + year_cr_df_risk_Central.LMc.sum() + year_cr_df_risk_Central.LMale.sum()
+                cr_exps_Keys = year_cr_df_risk_Keys.LMs.sum() + year_cr_df_risk_Keys.LMapp.sum() + year_cr_df_risk_Keys.LMc.sum() + year_cr_df_risk_Keys.LMale.sum()
+                cr_exps_North = year_cr_df_risk_North.LMs.sum() + year_cr_df_risk_North.LMapp.sum() + year_cr_df_risk_North.LMc.sum() + year_cr_df_risk_North.LMale.sum()
+                cr_exps_South = year_cr_df_risk_South.LMs.sum() + year_cr_df_risk_South.LMapp.sum() + year_cr_df_risk_South.LMc.sum() + year_cr_df_risk_South.LMale.sum()
+                cr_exps_total = cr_exps_Central + cr_exps_Keys + cr_exps_North + cr_exps_South
+            
+                change_exps_Central = (cr_exps_Central + lr_exps_Central) / (cr_exps_total + lr_exps_total) * 100
+                change_exps_Keys = (cr_exps_Keys + lr_exps_Keys) / (cr_exps_total + lr_exps_total) * 100
+                change_exps_North = (cr_exps_North + lr_exps_North) / (cr_exps_total + lr_exps_total) * 100
+                change_exps_South = (cr_exps_South + lr_exps_South) / (cr_exps_total + lr_exps_total) * 100
+
+                region_exps_d = {year: [1,2,3,4,5],
+                                'Region':['Central','Keys','North','South','Total'],
+                                'CR Exposure':[cr_exps_Central,cr_exps_Keys,cr_exps_North,cr_exps_South,cr_exps_total],
+                                'LR Exposure':[lr_exps_Central,lr_exps_Keys,lr_exps_North,lr_exps_South,lr_exps_total],
+                                'Total Change':[change_exps_Central,change_exps_Keys,change_exps_North,change_exps_South,100]}
+            else:
+                change_exps_Central = (lr_exps_Central) / (lr_exps_total) * 100
+                change_exps_Keys = (lr_exps_Keys) / (lr_exps_total) * 100
+                change_exps_North = (lr_exps_North) / (lr_exps_total) * 100
+                change_exps_South = (lr_exps_South) / (lr_exps_total) * 100
+
+                region_exps_d = {year: [1,2,3,4,5],
+                                'Region':['Central','Keys','North','South','Total'],
+                                'Exposure':[lr_exps_Central,lr_exps_Keys,lr_exps_North,lr_exps_South,lr_exps_total],
+                                'Total Change':[change_exps_Central,change_exps_Keys,change_exps_North,change_exps_South,100]}
 
             region_exps_df = pd.DataFrame(data=region_exps_d,index=[0,1,2,3,4]) 
-            regionlist[i] = region_exps_df
+            regionlist[i] = region_exps_df.fillna(0)
             i = i + 1
 
         percent_cr_exps_Central = (regionlist[1].iat[0,1] - regionlist[0].iat[0,1]) / regionlist[0].iat[0,1] * 100
@@ -522,21 +531,26 @@ class MyView(BaseView):
         percent_cr_exps_South = (regionlist[1].iat[3,1] - regionlist[0].iat[3,1]) / regionlist[0].iat[3,1] * 100
         percent_cr_exps_total = (regionlist[1].iat[4,1] - regionlist[0].iat[4,1]) / regionlist[0].iat[4,1] * 100
 
-        percent_lr_exps_Central = (regionlist[1].iat[0,2] - regionlist[0].iat[0,2]) / regionlist[0].iat[0,2] * 100
-        percent_lr_exps_Keys = (regionlist[1].iat[1,2] - regionlist[0].iat[1,2]) / regionlist[0].iat[1,2] * 100
-        percent_lr_exps_North = (regionlist[1].iat[2,2] - regionlist[0].iat[2,2]) / regionlist[0].iat[2,2] * 100
-        percent_lr_exps_South = (regionlist[1].iat[3,2] - regionlist[0].iat[3,2]) / regionlist[0].iat[3,2] * 100
-        percent_lr_exps_total = (regionlist[1].iat[4,2] - regionlist[0].iat[4,2]) / regionlist[0].iat[4,2] * 100
+        if tob == 'pr_lr':
 
-        percent_total_exps_Central = (regionlist[1].iat[0,1] + regionlist[1].iat[0,2]  - regionlist[0].iat[0,1] - regionlist[0].iat[0,2]) / (regionlist[0].iat[0,2] + regionlist[0].iat[0,1]) * 100
-        percent_total_exps_Keys = (regionlist[1].iat[1,1] + regionlist[1].iat[1,2] - regionlist[0].iat[1,1] - regionlist[0].iat[1,2]) / (regionlist[0].iat[1,2] + regionlist[0].iat[1,1]) * 100
-        percent_total_exps_North = (regionlist[1].iat[2,1] + regionlist[1].iat[2,2] - regionlist[0].iat[2,1] - regionlist[0].iat[2,2]) / (regionlist[0].iat[2,2] + regionlist[0].iat[2,1]) * 100
-        percent_total_exps_South = (regionlist[1].iat[3,1] + regionlist[1].iat[3,2] - regionlist[0].iat[3,1] - regionlist[0].iat[3,2]) / (regionlist[0].iat[3,2] + regionlist[0].iat[3,1]) * 100
-        percent_total_exps_total = (regionlist[1].iat[4,1] + regionlist[1].iat[4,2] - regionlist[0].iat[4,1] - regionlist[0].iat[4,2]) / (regionlist[0].iat[4,2] + regionlist[0].iat[4,1]) * 100
+            percent_lr_exps_Central = (regionlist[1].iat[0,2] - regionlist[0].iat[0,2]) / regionlist[0].iat[0,2] * 100
+            percent_lr_exps_Keys = (regionlist[1].iat[1,2] - regionlist[0].iat[1,2]) / regionlist[0].iat[1,2] * 100
+            percent_lr_exps_North = (regionlist[1].iat[2,2] - regionlist[0].iat[2,2]) / regionlist[0].iat[2,2] * 100
+            percent_lr_exps_South = (regionlist[1].iat[3,2] - regionlist[0].iat[3,2]) / regionlist[0].iat[3,2] * 100
+            percent_lr_exps_total = (regionlist[1].iat[4,2] - regionlist[0].iat[4,2]) / regionlist[0].iat[4,2] * 100
 
-        percent_change_d = {'CR Percentage Change':[percent_cr_exps_Central,percent_cr_exps_Keys,percent_cr_exps_North,percent_cr_exps_South,percent_cr_exps_total],
-                            'LR Percentage Change':[percent_lr_exps_Central,percent_lr_exps_Keys,percent_lr_exps_North,percent_lr_exps_South,percent_lr_exps_total],
-                            'Total Percentage Change':[percent_total_exps_Central,percent_total_exps_Keys,percent_total_exps_North,percent_total_exps_South,percent_total_exps_total]} 
+            percent_total_exps_Central = (regionlist[1].iat[0,1] + regionlist[1].iat[0,2]  - regionlist[0].iat[0,1] - regionlist[0].iat[0,2]) / (regionlist[0].iat[0,2] + regionlist[0].iat[0,1]) * 100
+            percent_total_exps_Keys = (regionlist[1].iat[1,1] + regionlist[1].iat[1,2] - regionlist[0].iat[1,1] - regionlist[0].iat[1,2]) / (regionlist[0].iat[1,2] + regionlist[0].iat[1,1]) * 100
+            percent_total_exps_North = (regionlist[1].iat[2,1] + regionlist[1].iat[2,2] - regionlist[0].iat[2,1] - regionlist[0].iat[2,2]) / (regionlist[0].iat[2,2] + regionlist[0].iat[2,1]) * 100
+            percent_total_exps_South = (regionlist[1].iat[3,1] + regionlist[1].iat[3,2] - regionlist[0].iat[3,1] - regionlist[0].iat[3,2]) / (regionlist[0].iat[3,2] + regionlist[0].iat[3,1]) * 100
+            percent_total_exps_total = (regionlist[1].iat[4,1] + regionlist[1].iat[4,2] - regionlist[0].iat[4,1] - regionlist[0].iat[4,2]) / (regionlist[0].iat[4,2] + regionlist[0].iat[4,1]) * 100
+
+            percent_change_d = {'CR Percentage Change':[percent_cr_exps_Central,percent_cr_exps_Keys,percent_cr_exps_North,percent_cr_exps_South,percent_cr_exps_total],
+                                'LR Percentage Change':[percent_lr_exps_Central,percent_lr_exps_Keys,percent_lr_exps_North,percent_lr_exps_South,percent_lr_exps_total],
+                                'Total Percentage Change':[percent_total_exps_Central,percent_total_exps_Keys,percent_total_exps_North,percent_total_exps_South,percent_total_exps_total]} 
+        else:
+            percent_change_d = {'Percentage Change':[percent_cr_exps_Central,percent_cr_exps_Keys,percent_cr_exps_North,percent_cr_exps_South,percent_cr_exps_total]} 
+
 
         regionlist[2] = pd.DataFrame(data=percent_change_d,index=[0,1,2,3,4]) 
 
@@ -546,22 +560,33 @@ class MyView(BaseView):
     @has_access
     def showRegion(self, lastyear, thisyear):
 
+        tobSelectValue = request.args.get('type_of_building') if request.args.get('type_of_building') else 'pr_lr' 
+        tobform = TOBForm(type_of_building=tobSelectValue)
+
         # number format
         int_num_format = lambda x: '{:,}'.format(x)
         flt_num_format = lambda x: '${:,.2f}'.format(x)
         flt_percent_format = lambda x: '{:,.2f}%'.format(x)
 
         yeartup = (lastyear, thisyear)
-        regionlist = MyView.regionAna(yeartup)
+        regionlist = MyView.regionAna(yeartup,tobSelectValue)
 
         lastyear_exps_df = regionlist[0]
         thisyear_exps_df = regionlist[1]
         percent_exps_df = regionlist[2]
         result_df = pd.concat([thisyear_exps_df, percent_exps_df], axis=1)
 
-        return self.render_template('distribution.html',lyear=lastyear,tyear=thisyear,lsim=2016,tsim=2017,analytype='exportRegion',title='Region',
+        if tobSelectValue == 'pr_lr':
+            return self.render_template('distribution.html',lyear=lastyear,tyear=thisyear,lsim=2016,tsim=2017,analytype='Region',title='Region',form=tobform,
                                tables=[lastyear_exps_df.to_html(classes='table table-bordered',index=False,formatters={'CR Exposure':flt_num_format,'LR Exposure':flt_num_format,'Total Change':flt_percent_format},columns=[lastyear,'Region','CR Exposure','LR Exposure','Total Change']),
                                        result_df.to_html(classes='table table-bordered',index=False,formatters={'CR Exposure':flt_num_format,'LR Exposure':flt_num_format,'Total Change':flt_percent_format,'CR Percentage Change':flt_percent_format,'LR Percentage Change':flt_percent_format,'Total Percentage Change':flt_percent_format},columns=[thisyear,'Region','CR Exposure','LR Exposure','Total Change','CR Percentage Change','LR Percentage Change','Total Percentage Change'])])
+        else:
+            return self.render_template('distribution.html',lyear=lastyear,tyear=thisyear,lsim=2016,tsim=2017,analytype='Region',title='Region',form=tobform,
+                               tables=[lastyear_exps_df.to_html(classes='table table-bordered',index=False,formatters={'Exposure':flt_num_format,'Total Change':flt_percent_format},columns=[lastyear,'Region','Exposure','Total Change']),
+                                       result_df.to_html(classes='table table-bordered',index=False,formatters={'Exposure':flt_num_format,'Total Change':flt_percent_format,'Percentage Change':flt_percent_format,'Total Percentage Change':flt_percent_format},columns=[thisyear,'Region','Exposure','Total Change','Percentage Change'])])
+
+
+
 
     @expose('/exportRegion/<string:lastyear>/<string:thisyear>/<int:lastsim>/<int:thissim>')
     @has_access
