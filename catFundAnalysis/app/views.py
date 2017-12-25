@@ -1,6 +1,7 @@
-from flask import render_template, make_response, send_file
+from flask import render_template, make_response, send_file, request
 from flask_appbuilder import BaseView, expose, has_access
 from app import appbuilder
+from .forms import TOBForm
 from io import BytesIO
 import pandas as pd
 import numpy as np
@@ -396,7 +397,10 @@ class MyView(BaseView):
     @has_access
     def showYearbuild(self, lastyear, thisyear):
 
-    	# number format
+        tobSelectValue = request.args.get('type_of_building')
+        tobform = TOBForm(type_of_building=tobSelectValue)
+
+        # number format
         int_num_format = lambda x: '{:,}'.format(x)
         flt_num_format = lambda x: '${:,.2f}'.format(x)
         flt_percent_format = lambda x: '{:,.2f}%'.format(x)
@@ -409,7 +413,7 @@ class MyView(BaseView):
         percent_exps_df = yearlist[2]
         result_df = pd.concat([thisyear_exps_df, percent_exps_df], axis=1)
 
-        return self.render_template('distribution.html',lyear=lastyear,tyear=thisyear,lsim=2016,tsim=2017,analytype='exportYearbuild',title='Yearbuilt',
+        return self.render_template('distribution.html',lyear=lastyear,tyear=thisyear,lsim=2016,tsim=2017,analytype='exportYearbuild',title='Yearbuilt',form=tobform,
                                tables=[lastyear_exps_df.to_html(classes='table table-bordered',index=False,formatters={'CR Exposure':flt_num_format,'LR Exposure':flt_num_format,'Total Change':flt_percent_format},columns=[lastyear,'Year Build','CR Exposure','LR Exposure','Total Change']),
                                        result_df.to_html(classes='table table-bordered',index=False,formatters={'CR Exposure':flt_num_format,'LR Exposure':flt_num_format,'Total Change':flt_percent_format,'CR Percentage Change':flt_percent_format,'LR Percentage Change':flt_percent_format},columns=[thisyear,'Year Build','CR Exposure','LR Exposure','Total Change','CR Percentage Change','LR Percentage Change'])])
 
