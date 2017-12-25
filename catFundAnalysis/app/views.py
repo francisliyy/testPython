@@ -247,7 +247,7 @@ class MyView(BaseView):
     @has_access
     def showComparisons(self, lastyear, thisyear, lastsim, thissim):
 
-    	# number format
+        # number format
         int_num_format = lambda x: '{:,}'.format(x)
         flt_num_format = lambda x: '${:,.2f}'.format(x)
         flt_percent_format = lambda x: '{:,.2f}%'.format(x)
@@ -321,57 +321,71 @@ class MyView(BaseView):
     
 
     @staticmethod
-    def yearbuild(yeartup):
+    def yearbuild(yeartup,tob):
 
         yearlist = [1,2,3]
 
         i = 0
 
         for year in yeartup:
-    	    # define path the different year
+            # define path the different year
             year_path = 'app/data/' + year
 
-            #defin year dataframe 
-            year_cr_risk = year_path + '/cr/CRILM_MidHighRise_AggRiskLosses.txt'
-            year_lr = year_path + '/pr_lr/valid_data.csv'
-
-            year_cr_df_risk = pd.read_csv(year_cr_risk,usecols=['YearBuilt','LMs', 'LMapp', 'LMc', 'LMale'])
+            year_lr = year_path + '/'+tob+'/valid_data.csv'
             year_lr_df = pd.read_csv(year_lr,usecols=['YearBuilt','Units', 'LMs', 'LMapp', 'LMc', 'LMale'])
-
-            year_cr_df_risk_lt_1970 = year_cr_df_risk[year_cr_df_risk['YearBuilt'] < 1970]
-            year_cr_df_risk_lte_1983 = year_cr_df_risk[(year_cr_df_risk['YearBuilt'] >= 1970) & (year_cr_df_risk['YearBuilt'] <= 1983)]
-            year_cr_df_risk_lte_1993 = year_cr_df_risk[(year_cr_df_risk['YearBuilt'] >= 1984) & (year_cr_df_risk['YearBuilt'] <= 1993)]
-            year_cr_df_risk_gte_1994 = year_cr_df_risk[year_cr_df_risk['YearBuilt'] >= 1994]
-
             year_lr_df_lt_1970 = year_lr_df[year_lr_df['YearBuilt'] < 1970]
             year_lr_df_lte_1983 = year_lr_df[(year_lr_df['YearBuilt'] >= 1970) & (year_lr_df['YearBuilt'] <= 1983)]
             year_lr_df_lte_1993 = year_lr_df[(year_lr_df['YearBuilt'] >= 1984) & (year_lr_df['YearBuilt'] <= 1993)]
             year_lr_df_gte_1994 = year_lr_df[year_lr_df['YearBuilt'] >= 1994]
 
-            cr_exps_lt_1970 = year_cr_df_risk_lt_1970.LMs.sum() + year_cr_df_risk_lt_1970.LMapp.sum() + year_cr_df_risk_lt_1970.LMc.sum() + year_cr_df_risk_lt_1970.LMale.sum()
             lr_exps_lt_1970 = ((year_lr_df_lt_1970.LMs + year_lr_df_lt_1970.LMapp + year_lr_df_lt_1970.LMc + year_lr_df_lt_1970.LMale) * year_lr_df_lt_1970.Units).sum()
-            cr_exps_lte_1983 = year_cr_df_risk_lte_1983.LMs.sum() + year_cr_df_risk_lte_1983.LMapp.sum() + year_cr_df_risk_lte_1983.LMc.sum() + year_cr_df_risk_lte_1983.LMale.sum()
             lr_exps_lte_1983 = ((year_lr_df_lte_1983.LMs + year_lr_df_lte_1983.LMapp + year_lr_df_lte_1983.LMc + year_lr_df_lte_1983.LMale) * year_lr_df_lte_1983.Units).sum()
-            cr_exps_lte_1993 = year_cr_df_risk_lte_1993.LMs.sum() + year_cr_df_risk_lte_1993.LMapp.sum() + year_cr_df_risk_lte_1993.LMc.sum() + year_cr_df_risk_lte_1993.LMale.sum()
             lr_exps_lte_1993 = ((year_lr_df_lte_1993.LMs + year_lr_df_lte_1993.LMapp + year_lr_df_lte_1993.LMc + year_lr_df_lte_1993.LMale) * year_lr_df_lte_1993.Units).sum()
-            cr_exps_gte_1994 = year_cr_df_risk_gte_1994.LMs.sum() + year_cr_df_risk_gte_1994.LMapp.sum() + year_cr_df_risk_gte_1994.LMc.sum() + year_cr_df_risk_gte_1994.LMale.sum()
             lr_exps_gte_1994 = ((year_lr_df_gte_1994.LMs + year_lr_df_gte_1994.LMapp + year_lr_df_gte_1994.LMc + year_lr_df_gte_1994.LMale) * year_lr_df_gte_1994.Units).sum()
-            cr_exps_total = cr_exps_lt_1970 + cr_exps_lte_1983 + cr_exps_lte_1993 + cr_exps_gte_1994
-            lr_exps_total = lr_exps_lt_1970 + lr_exps_lte_1983 + lr_exps_lte_1993 + lr_exps_gte_1994
+            lr_exps_total = lr_exps_lt_1970 + (0 if np.isnan(lr_exps_lte_1983) else lr_exps_lte_1983) + lr_exps_lte_1993 + lr_exps_gte_1994
 
-            change_exps_lt_1970 = (cr_exps_lt_1970 + lr_exps_lt_1970) / (cr_exps_total + lr_exps_total) * 100
-            change_exps_lte_1983 = (cr_exps_lte_1983 + lr_exps_lte_1983) / (cr_exps_total + lr_exps_total) * 100
-            change_exps_lte_1993 = (cr_exps_lte_1993 + lr_exps_lte_1993) / (cr_exps_total + lr_exps_total) * 100
-            change_exps_gte_1994 = (cr_exps_gte_1994 + lr_exps_gte_1994) / (cr_exps_total + lr_exps_total) * 100
+            #defin year dataframe
+            if tob == 'pr_lr': 
+                year_cr_risk = year_path + '/cr/CRILM_MidHighRise_AggRiskLosses.txt'
+                year_cr_df_risk = pd.read_csv(year_cr_risk,usecols=['YearBuilt','LMs', 'LMapp', 'LMc', 'LMale'])
+                year_cr_df_risk_lt_1970 = year_cr_df_risk[year_cr_df_risk['YearBuilt'] < 1970]
+                year_cr_df_risk_lte_1983 = year_cr_df_risk[(year_cr_df_risk['YearBuilt'] >= 1970) & (year_cr_df_risk['YearBuilt'] <= 1983)]
+                year_cr_df_risk_lte_1993 = year_cr_df_risk[(year_cr_df_risk['YearBuilt'] >= 1984) & (year_cr_df_risk['YearBuilt'] <= 1993)]
+                year_cr_df_risk_gte_1994 = year_cr_df_risk[year_cr_df_risk['YearBuilt'] >= 1994]
 
-            year_exps_d = { year: [1,2,3,4,5],
-                            'Year Build':['<1970','1970~1983','1984~1993','>=1994','Total'],
-                            'CR Exposure':[cr_exps_lt_1970,cr_exps_lte_1983,cr_exps_lte_1993,cr_exps_gte_1994,cr_exps_total],
-                            'LR Exposure':[lr_exps_lt_1970,lr_exps_lte_1983,lr_exps_lte_1993,lr_exps_gte_1994,lr_exps_total],
-                            'Total Change':[change_exps_lt_1970,change_exps_lte_1983,change_exps_lte_1993,change_exps_gte_1994,100]}
+                cr_exps_lt_1970 = year_cr_df_risk_lt_1970.LMs.sum() + year_cr_df_risk_lt_1970.LMapp.sum() + year_cr_df_risk_lt_1970.LMc.sum() + year_cr_df_risk_lt_1970.LMale.sum()
+                cr_exps_lte_1983 = year_cr_df_risk_lte_1983.LMs.sum() + year_cr_df_risk_lte_1983.LMapp.sum() + year_cr_df_risk_lte_1983.LMc.sum() + year_cr_df_risk_lte_1983.LMale.sum()
+                cr_exps_lte_1993 = year_cr_df_risk_lte_1993.LMs.sum() + year_cr_df_risk_lte_1993.LMapp.sum() + year_cr_df_risk_lte_1993.LMc.sum() + year_cr_df_risk_lte_1993.LMale.sum()
+                cr_exps_gte_1994 = year_cr_df_risk_gte_1994.LMs.sum() + year_cr_df_risk_gte_1994.LMapp.sum() + year_cr_df_risk_gte_1994.LMc.sum() + year_cr_df_risk_gte_1994.LMale.sum()
+                cr_exps_total = cr_exps_lt_1970 + cr_exps_lte_1983 + cr_exps_lte_1993 + cr_exps_gte_1994
+                
+                change_exps_lt_1970 = (cr_exps_lt_1970 + lr_exps_lt_1970) / (cr_exps_total + lr_exps_total) * 100
+                change_exps_lte_1983 = (cr_exps_lte_1983 + lr_exps_lte_1983) / (cr_exps_total + lr_exps_total) * 100
+                change_exps_lte_1993 = (cr_exps_lte_1993 + lr_exps_lte_1993) / (cr_exps_total + lr_exps_total) * 100
+                change_exps_gte_1994 = (cr_exps_gte_1994 + lr_exps_gte_1994) / (cr_exps_total + lr_exps_total) * 100
 
+                year_exps_d = { year: [1,2,3,4,5],
+                                'Year Build':['<1970','1970~1983','1984~1993','>=1994','Total'],
+                                'CR Exposure':[cr_exps_lt_1970,cr_exps_lte_1983,cr_exps_lte_1993,cr_exps_gte_1994,cr_exps_total],
+                                'LR Exposure':[lr_exps_lt_1970,lr_exps_lte_1983,lr_exps_lte_1993,lr_exps_gte_1994,lr_exps_total],
+                                'Total Change':[change_exps_lt_1970,change_exps_lte_1983,change_exps_lte_1993,change_exps_gte_1994,100]}
+
+            
+            else:
+                
+                change_exps_lt_1970 = (lr_exps_lt_1970) / (lr_exps_total) * 100
+                change_exps_lte_1983 = (lr_exps_lte_1983) / (lr_exps_total) * 100
+                change_exps_lte_1993 = (lr_exps_lte_1993) / (lr_exps_total) * 100
+                change_exps_gte_1994 = (lr_exps_gte_1994) / (lr_exps_total) * 100
+
+                year_exps_d = { year: [1,2,3,4,5],
+                                'Year Build':['<1970','1970~1983','1984~1993','>=1994','Total'],
+                                'Exposure':[lr_exps_lt_1970,lr_exps_lte_1983,lr_exps_lte_1993,lr_exps_gte_1994,lr_exps_total],
+                                'Total Change':[change_exps_lt_1970,change_exps_lte_1983,change_exps_lte_1993,change_exps_gte_1994,100]}
+ 
             year_exps_df = pd.DataFrame(data=year_exps_d,index=[0,1,2,3,4]) 
-            yearlist[i] = year_exps_df
+           
+            yearlist[i] = year_exps_df.fillna(0)
             i = i + 1
 
         percent_cr_exps_lt_1970 = (yearlist[1].iat[0,1] - yearlist[0].iat[0,1]) / yearlist[0].iat[0,1] * 100
@@ -380,14 +394,20 @@ class MyView(BaseView):
         percent_cr_exps_gte_1994 = (yearlist[1].iat[3,1] - yearlist[0].iat[3,1]) / yearlist[0].iat[3,1] * 100
         percent_cr_exps_total = (yearlist[1].iat[4,1] - yearlist[0].iat[4,1]) / yearlist[0].iat[4,1] * 100
 
-        percent_lr_exps_lt_1970 = (yearlist[1].iat[0,2] - yearlist[0].iat[0,2]) / yearlist[0].iat[0,2] * 100
-        percent_lr_exps_lte_1983 = (yearlist[1].iat[1,2] - yearlist[0].iat[1,2]) / yearlist[0].iat[1,2] * 100
-        percent_lr_exps_lte_1993 = (yearlist[1].iat[2,2] - yearlist[0].iat[2,2]) / yearlist[0].iat[2,2] * 100
-        percent_lr_exps_gte_1994 = (yearlist[1].iat[3,2] - yearlist[0].iat[3,2]) / yearlist[0].iat[3,2] * 100
-        percent_lr_exps_total = (yearlist[1].iat[4,2] - yearlist[0].iat[4,2]) / yearlist[0].iat[4,2] * 100
+        if tob == 'pr_lr':
 
-        percent_change_d = {'CR Percentage Change':[percent_cr_exps_lt_1970,percent_cr_exps_lte_1983,percent_cr_exps_lte_1993,percent_cr_exps_gte_1994,percent_cr_exps_total],
+            percent_lr_exps_lt_1970 = (yearlist[1].iat[0,2] - yearlist[0].iat[0,2]) / yearlist[0].iat[0,2] * 100
+            percent_lr_exps_lte_1983 = (yearlist[1].iat[1,2] - yearlist[0].iat[1,2]) / yearlist[0].iat[1,2] * 100
+            percent_lr_exps_lte_1993 = (yearlist[1].iat[2,2] - yearlist[0].iat[2,2]) / yearlist[0].iat[2,2] * 100
+            percent_lr_exps_gte_1994 = (yearlist[1].iat[3,2] - yearlist[0].iat[3,2]) / yearlist[0].iat[3,2] * 100
+            percent_lr_exps_total = (yearlist[1].iat[4,2] - yearlist[0].iat[4,2]) / yearlist[0].iat[4,2] * 100
+
+            percent_change_d = {'CR Percentage Change':[percent_cr_exps_lt_1970,percent_cr_exps_lte_1983,percent_cr_exps_lte_1993,percent_cr_exps_gte_1994,percent_cr_exps_total],
                             'LR Percentage Change':[percent_lr_exps_lt_1970,percent_lr_exps_lte_1983,percent_lr_exps_lte_1993,percent_lr_exps_gte_1994,percent_lr_exps_total]} 
+        else:
+
+            percent_change_d = {'Percentage Change':[percent_cr_exps_lt_1970,percent_cr_exps_lte_1983,percent_cr_exps_lte_1993,percent_cr_exps_gte_1994,percent_cr_exps_total]} 
+
 
         yearlist[2] = pd.DataFrame(data=percent_change_d,index=[0,1,2,3,4])                     
 
@@ -397,7 +417,7 @@ class MyView(BaseView):
     @has_access
     def showYearbuild(self, lastyear, thisyear):
 
-        tobSelectValue = request.args.get('type_of_building')
+        tobSelectValue = request.args.get('type_of_building') if request.args.get('type_of_building') else 'pr_lr' 
         tobform = TOBForm(type_of_building=tobSelectValue)
 
         # number format
@@ -406,16 +426,21 @@ class MyView(BaseView):
         flt_percent_format = lambda x: '{:,.2f}%'.format(x)
 
         yeartup = (lastyear, thisyear)
-        yearlist = MyView.yearbuild(yeartup)
+        yearlist = MyView.yearbuild(yeartup,tobSelectValue)
 
         lastyear_exps_df = yearlist[0]
         thisyear_exps_df = yearlist[1]
         percent_exps_df = yearlist[2]
         result_df = pd.concat([thisyear_exps_df, percent_exps_df], axis=1)
 
-        return self.render_template('distribution.html',lyear=lastyear,tyear=thisyear,lsim=2016,tsim=2017,analytype='exportYearbuild',title='Yearbuilt',form=tobform,
+        if tobSelectValue == 'pr_lr' :
+            return self.render_template('distribution.html',lyear=lastyear,tyear=thisyear,lsim=2016,tsim=2017,analytype='exportYearbuild',title='Yearbuilt',form=tobform,
                                tables=[lastyear_exps_df.to_html(classes='table table-bordered',index=False,formatters={'CR Exposure':flt_num_format,'LR Exposure':flt_num_format,'Total Change':flt_percent_format},columns=[lastyear,'Year Build','CR Exposure','LR Exposure','Total Change']),
                                        result_df.to_html(classes='table table-bordered',index=False,formatters={'CR Exposure':flt_num_format,'LR Exposure':flt_num_format,'Total Change':flt_percent_format,'CR Percentage Change':flt_percent_format,'LR Percentage Change':flt_percent_format},columns=[thisyear,'Year Build','CR Exposure','LR Exposure','Total Change','CR Percentage Change','LR Percentage Change'])])
+        else:
+            return self.render_template('distribution.html',lyear=lastyear,tyear=thisyear,lsim=2016,tsim=2017,analytype='exportYearbuild',title='Yearbuilt',form=tobform,
+                               tables=[lastyear_exps_df.to_html(classes='table table-bordered',index=False,formatters={'Exposure':flt_num_format,'Total Change':flt_percent_format},columns=[lastyear,'Year Build','Exposure','Total Change']),
+                                       result_df.to_html(classes='table table-bordered',index=False,formatters={'Exposure':flt_num_format,'Total Change':flt_percent_format,'Percentage Change':flt_percent_format},columns=[thisyear,'Year Build','Exposure','Total Change','Percentage Change'])])
 
     @expose('/exportYearbuild/<string:lastyear>/<string:thisyear>/<int:lastsim>/<int:thissim>')
     @has_access
@@ -445,7 +470,7 @@ class MyView(BaseView):
         i = 0
 
         for year in yeartup:
-    	    # define path the different year
+            # define path the different year
             year_path = 'app/data/' + year
 
             #defin year dataframe 
@@ -521,7 +546,7 @@ class MyView(BaseView):
     @has_access
     def showRegion(self, lastyear, thisyear):
 
-    	# number format
+        # number format
         int_num_format = lambda x: '{:,}'.format(x)
         flt_num_format = lambda x: '${:,.2f}'.format(x)
         flt_percent_format = lambda x: '{:,.2f}%'.format(x)
@@ -566,7 +591,7 @@ class MyView(BaseView):
         i = 0
 
         for year in yeartup:
-    	    # define path the different year
+            # define path the different year
             year_path = 'app/data/' + year
 
             #defin year dataframe 
@@ -629,7 +654,7 @@ class MyView(BaseView):
     @has_access
     def showConstruction(self, lastyear, thisyear):
 
-    	# number format
+        # number format
         int_num_format = lambda x: '{:,}'.format(x)
         flt_num_format = lambda x: '${:,.2f}'.format(x)
         flt_percent_format = lambda x: '{:,.2f}%'.format(x)
@@ -675,7 +700,7 @@ class MyView(BaseView):
         i = 0
 
         for year in yeartup:
-    	    # define path the different year
+            # define path the different year
             year_path = 'app/data/' + year
 
             #defin year dataframe 
@@ -725,7 +750,7 @@ class MyView(BaseView):
     @has_access
     def showCounty(self, lastyear, thisyear):
 
-    	# number format
+        # number format
         int_num_format = lambda x: '{:,}'.format(x)
         flt_num_format = lambda x: '${:,.2f}'.format(x)
         flt_percent_format = lambda x: '{:,.2f}%'.format(x)
