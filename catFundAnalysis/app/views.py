@@ -232,8 +232,8 @@ class MyView(BaseView):
         thisyear_rental_df_de = pd.read_csv(thisyear_rental_de, header = None, names = ['A','Year','Tenants Loss'])
         thisyear_condo_df_de = pd.read_csv(thisyear_condo_de, header = None, names = ['A','Year','Condo Units Loss'])
 
-        thisyear_cr_df_de_1 = thisyear_cr_df_de.sort_values(by='Year')
-        thisyear_lr_df_de['Commercial Loss'] = thisyear_cr_df_de_1.CRL/58000 + thisyear_lr_df_de.LRL
+        thisyear_cr_df_de_1 = thisyear_cr_df_de.sort_values(by='Year').reset_index(drop=True)
+        thisyear_lr_df_de['Commercial Loss'] = thisyear_cr_df_de_1.CRL + thisyear_lr_df_de.LRL
         result_de = pd.concat([thisyear_lr_df_de[['Year','Commercial Loss']], thisyear_residential_df_de[['Residential Loss']]], axis=1)
         result_de = pd.concat([result_de, thisyear_mobile_df_de[['Mobile Home Loss']]], axis=1)
         result_de = pd.concat([result_de, thisyear_rental_df_de[['Tenants Loss']]], axis=1)
@@ -293,7 +293,7 @@ class MyView(BaseView):
         writer = pd.ExcelWriter(output, engine='xlsxwriter')
         
         total_df.to_excel(writer, sheet_name='Control Totals',index=False,float_format="%.2f")
-        deductible_df.to_excel(writer, sheet_name='Actual deductible - With Demand',index=True,float_format="%.2f")
+        deductible_df.to_excel(writer, sheet_name='Actual deductible - With Demand',index=True,float_format="%.2f",columns=["Year","Total Loss","Commercial Loss","Residential Loss","Mobile Home Loss","Tenants Loss","Condo Units Loss"])
         worksheet1 = writer.sheets['Control Totals']
         worksheet2 = writer.sheets['Actual deductible - With Demand']
         
