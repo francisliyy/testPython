@@ -183,7 +183,7 @@ class MyView(BaseView):
     @staticmethod
     def retemarking(thisyear, thissim):
 
-        sheetlist = [1,2]
+        sheetlist = [1,2,3]
 
         # define path
         thisyear_path = 'app/data/' + thisyear
@@ -240,6 +240,12 @@ class MyView(BaseView):
         result_de = pd.concat([result_de, thisyear_condo_df_de[['Condo Units Loss']]], axis=1)
         result_de['Total Loss'] = result_de['Commercial Loss'] + result_de['Residential Loss'] + result_de['Mobile Home Loss'] + result_de['Tenants Loss'] + result_de['Condo Units Loss']
         sheetlist[1] = result_de
+        #deductible total
+        deductible_total_d = {'Year':['Total'],'Total Loss':[result_de['Total Loss'].sum()],'Commercial Loss':[result_de['Commercial Loss'].sum()]
+        ,'Residential Loss':[result_de['Residential Loss'].sum()],'Mobile Home Loss':[result_de['Mobile Home Loss'].sum()]
+        ,'Tenants Loss':[result_de['Tenants Loss'].sum()],'Condo Units Loss':[result_de['Condo Units Loss'].sum()]}
+        deductible_total_df = pd.DataFrame(data=deductible_total_d)
+        sheetlist[2] = deductible_total_df
 
         return sheetlist
     
@@ -285,15 +291,18 @@ class MyView(BaseView):
 
         tables = MyView.retemarking(thisyear,thissim)
         total_df = tables[0][['TOB Code','TOB Name','AAL']]
-        deductible_df = tables[1][['Year','Commercial Loss','Total Loss','Residential Loss','Mobile Home Loss','Tenants Loss','Condo Units Loss']]
+        deductible_df = tables[1][['Year','Total Loss','Commercial Loss','Residential Loss','Mobile Home Loss','Tenants Loss','Condo Units Loss']]
         deductible_df.index.name = 'Event ID'
         deductible_df.index = np.arange(1,len(deductible_df)+1)
+        deductible_total_df = tables[2][['Year','Total Loss','Commercial Loss','Residential Loss','Mobile Home Loss','Tenants Loss','Condo Units Loss']]
 
         output = BytesIO()
         writer = pd.ExcelWriter(output, engine='xlsxwriter')
         
         total_df.to_excel(writer, sheet_name='Control Totals',index=False,float_format="%.2f")
         deductible_df.to_excel(writer, sheet_name='Actual deductible - With Demand',index=True,float_format="%.2f",columns=["Year","Total Loss","Commercial Loss","Residential Loss","Mobile Home Loss","Tenants Loss","Condo Units Loss"])
+        deductible_total_df.to_excel(writer, sheet_name='Actual deductible - With Demand',index=False,float_format="%.2f",columns=["Year","Total Loss","Commercial Loss","Residential Loss","Mobile Home Loss","Tenants Loss","Condo Units Loss"],
+             startrow=len(deductible_df)+1, startcol=1, header=False)
         worksheet1 = writer.sheets['Control Totals']
         worksheet2 = writer.sheets['Actual deductible - With Demand']
         
