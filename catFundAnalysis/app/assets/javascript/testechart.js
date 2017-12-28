@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom';
 import echarts from 'echarts';
 
 
-//var echarts = require('echarts');
+//cntbnd_jul11.geojsonvar echarts = require('echarts');
 
 // initialize echarts instance with prepared DOM
 var myChart = echarts.init(document.getElementById('app'));
