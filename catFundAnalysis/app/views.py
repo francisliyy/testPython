@@ -855,3 +855,7 @@ appbuilder.add_link("yearbuild", href='/myview/showYearbuild/2016/2017', categor
 appbuilder.add_link("region", href='/myview/showRegion/2016/2017', category='My View')
 appbuilder.add_link("county", href='/myview/showCounty/2016/2017', category='My View')
 appbuilder.add_link("construction", href='/myview/showConstruction/2016/2017', category='My View')
+
+@appbuilder.app.errorhandler(404)
+def page_not_found(e):
+    return render_template('404.html', base_template=appbuilder.base_template, appbuilder=appbuilder), 404

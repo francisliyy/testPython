@@ -6,6 +6,9 @@
   "repository": "https://github.com/francisliyy/testPython.git",
   "author": "yingxin li",
   "license": "MIT",
+  "scripts": {
+    "build": "webpack --progress --watch"
+  },
   "dependencies": {
     "echarts": "^3.8.5",
     "react": "^16.2.0",
