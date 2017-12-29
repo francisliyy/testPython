@@ -60,7 +60,6 @@ $.get('/static/assets/map/countygeo.json', function (usaJson) {
                 textFixed: {
                 },
                 data:[
-                 {name : 'ALACHUA', value : 10},
                 ]
             }
         ]
@@ -70,12 +69,12 @@ $.get('/static/assets/map/countygeo.json', function (usaJson) {
 
     let pChange = countydata["Percentage Change"];
 
-    /**var dataArray = new Array();
+    var dataArray = new Array();
     for(var key in pChange) {
         option.series[0].data.push({name:key.toUpperCase(),value:pChange[key].toFixed(2)})
     }
 
-    console.log(option);**/
+    console.log(option);
 
     countyChart.setOption(option);
 });
