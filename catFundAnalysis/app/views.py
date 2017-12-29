@@ -779,6 +779,7 @@ class MyView(BaseView):
                 df_cr_lr_fillna0_t['Total'] = [lr_exps_total,100]
 
             df_cr_lr_fillna0 = df_cr_lr_fillna0_t.T
+            df_cr_lr_fillna0.columns = [col[0] for col in df_cr_lr_fillna0.columns]
 
             #df_cr_lr_fillna0.loc[:,year] = pd.date_range(1, periods=len(df_cr_lr_fillna0))
 
@@ -789,7 +790,8 @@ class MyView(BaseView):
 
         if tob == 'pr_lr':
             countylist[1]['CR Percentage Change'] = (countylist[1]['CR Exposure'] - countylist[0]['CR Exposure']) * 100 / countylist[0]['CR Exposure']
-            countylist[1]['LR Percentage Change'] = (countylist[1]['LR Exposure'] - countylist[0]['LR Exposure']) * 100 / countylist[0]['LR Exposure']      
+            countylist[1]['LR Percentage Change'] = (countylist[1]['LR Exposure'] - countylist[0]['LR Exposure']) * 100 / countylist[0]['LR Exposure']
+            countylist[1]['Total Percentage Change'] = (countylist[1]['CR Exposure'] + countylist[1]['LR Exposure'] - countylist[0]['CR Exposure'] - countylist[0]['LR Exposure']) * 100 / (countylist[0]['CR Exposure'] + countylist[0]['LR Exposure'])      
         else:
             countylist[1]['Percentage Change'] = (countylist[1]['Exposure'] - countylist[0]['Exposure']) * 100 / countylist[0]['Exposure']
         
@@ -818,14 +820,31 @@ class MyView(BaseView):
         #lastyear_exps_df = pd.concat([countylist[0],countylist[1]],axis=1)
 
         if tobSelectValue == 'pr_lr':
-            return self.render_template('distribution.html',lyear=lastyear,tyear=thisyear,lsim=2016,tsim=2017,analytype='County',title='County',form=tobform,
+            return self.render_template('distribution.html',lyear=lastyear,tyear=thisyear,lsim=2016,tsim=2017,analytype='County',title='County',form=tobform,tobSelectValue=tobSelectValue,
                                tables=[lastyear_exps_df.to_html(classes='table table-bordered',index=True,formatters={'CR Exposure':flt_num_format,'LR Exposure':flt_num_format,'Total Percentage':flt_percent_format},columns=['CR Exposure','LR Exposure','Total Percentage'])
-                                      ,thisyear_exps_df.to_html(classes='table table-bordered',index=True,formatters={'CR Exposure':flt_num_format,'LR Exposure':flt_num_format,'Total Percentage':flt_percent_format,'CR Percentage Change':flt_percent_format,'LR Percentage Change':flt_percent_format},columns=['CR Exposure','LR Exposure','Total Percentage','CR Percentage Change','LR Percentage Change'])])
+                                      ,thisyear_exps_df.to_html(classes='table table-bordered',index=True,formatters={'CR Exposure':flt_num_format,'LR Exposure':flt_num_format,'Total Percentage':flt_percent_format,'CR Percentage Change':flt_percent_format,'LR Percentage Change':flt_percent_format,'Total Percentage Change':flt_percent_format},columns=['CR Exposure','LR Exposure','Total Percentage','CR Percentage Change','LR Percentage Change','Total Percentage Change'])])
         else:
-            return self.render_template('distribution.html',lyear=lastyear,tyear=thisyear,lsim=2016,tsim=2017,analytype='County',title='County',form=tobform,
+            return self.render_template('distribution.html',lyear=lastyear,tyear=thisyear,lsim=2016,tsim=2017,analytype='County',title='County',form=tobform,tobSelectValue=tobSelectValue,
                                tables=[lastyear_exps_df.to_html(classes='table table-bordered',index=True,formatters={'Exposure':flt_num_format,'Total Percentage':flt_percent_format},columns=['Exposure','Total Percentage'])
                                       ,thisyear_exps_df.to_html(classes='table table-bordered',index=True,formatters={'Exposure':flt_num_format,'Total Percentage':flt_percent_format,'Percentage Change':flt_percent_format},columns=['Exposure','Total Percentage','Percentage Change'])])
+    
+    @expose('/showHeatChartCounty/<string:tobSelectValue>/<string:lastyear>/<string:thisyear>')
+    @has_access
+    def showHeatChartCounty(self,tobSelectValue, lastyear, thisyear):
 
+        # number format
+        int_num_format = lambda x: '{:,}'.format(x)
+        flt_num_format = lambda x: '${:,.2f}'.format(x)
+        flt_percent_format = lambda x: '{:,.2f}%'.format(x)
+
+        yeartup = (lastyear, thisyear)
+        countylist = MyView.countyAna(yeartup,tobSelectValue)
+
+        lastyear_exps_df = countylist[0]
+        thisyear_exps_df = countylist[1]
+        #lastyear_exps_df = pd.concat([countylist[0],countylist[1]],axis=1)
+
+        return self.render_template('heatChartForCounty.html',lyear=lastyear,tyear=thisyear,lsim=2016,tsim=2017,countyData=thisyear_exps_df.to_json())
 
     @expose('/exportCounty/<string:lastyear>/<string:thisyear>/<int:lastsim>/<int:thissim>')
     @has_access
