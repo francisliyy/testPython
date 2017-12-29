@@ -7,7 +7,7 @@ import echarts from 'echarts';
 let countyChart = echarts.init(document.getElementById('countyHeatChart'));
 let countydata = $('#countyHeatChart').data('county');
 
-$.get('/static/assets/map/countygeo.json', function (usaJson) {
+$.get('/static/assets/map/countynewgeo.json', function (usaJson) {
     countyChart.hideLoading();
 
     echarts.registerMap('USA', usaJson, {
