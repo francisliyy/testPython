@@ -27,7 +27,7 @@ $.get('/static/assets/map/countynewgeo.json', function (usaJson) {
         },
         visualMap: {
             left: 'right',
-            min: 0,
+            min: -100,
             max: 100,
             inRange: {
                 color: ['#313695', '#4575b4', '#74add1', '#abd9e9', '#e0f3f8', '#ffffbf', '#fee090', '#fdae61', '#f46d43', '#d73027', '#a50026']
@@ -71,7 +71,8 @@ $.get('/static/assets/map/countynewgeo.json', function (usaJson) {
 
     var dataArray = new Array();
     for(var key in pChange) {
-        option.series[0].data.push({name:key.toUpperCase(),value:pChange[key].toFixed(2)})
+        if(key==='Total') continue;
+        option.series[0].data.push({name:key.toUpperCase(),value:parseFloat(pChange[key].toFixed(2))})
     }
 
     console.log(option);
