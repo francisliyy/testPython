@@ -6,6 +6,7 @@ import echarts from 'echarts';
 
 let countyChart = echarts.init(document.getElementById('countyHeatChart'));
 let countydata = $('#countyHeatChart').data('county');
+let tob = $('#countyHeatChart').data('tob').split("_")[1].toUpperCase();
 
 $.get('/static/assets/map/countynewgeo.json', function (usaJson) {
     countyChart.hideLoading();
@@ -15,7 +16,7 @@ $.get('/static/assets/map/countynewgeo.json', function (usaJson) {
     let option = {
         title: {
             text: 'Florida Hurrican Losses (2017)',
-            subtext: '',
+            subtext: 'Type of Building : '+tob,
             sublink: '',
             left: 'right'
         },
@@ -67,7 +68,7 @@ $.get('/static/assets/map/countynewgeo.json', function (usaJson) {
 
     
 
-    let pChange = countydata["Percentage Change"];
+    let pChange = countydata["Total Percentage Change"];
 
     var dataArray = new Array();
     for(var key in pChange) {
