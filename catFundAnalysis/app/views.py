@@ -842,9 +842,11 @@ class MyView(BaseView):
 
         lastyear_exps_df = countylist[0]
         thisyear_exps_df = countylist[1]
+        maxValue = thisyear_exps_df['Total Percentage Change'].max()
+        minValue = thisyear_exps_df['Total Percentage Change'].min()
         #lastyear_exps_df = pd.concat([countylist[0],countylist[1]],axis=1)
 
-        return self.render_template('heatChartForCounty.html',tob=tobSelectValue,lyear=lastyear,tyear=thisyear,lsim=2016,tsim=2017,countyData=thisyear_exps_df.to_json())
+        return self.render_template('heatChartForCounty.html',maxValue=maxValue,minValue=minValue,tob=tobSelectValue,lyear=lastyear,tyear=thisyear,lsim=2016,tsim=2017,countyData=thisyear_exps_df.to_json())
 
     @expose('/exportCounty/<string:lastyear>/<string:thisyear>/<int:lastsim>/<int:thissim>')
     @has_access

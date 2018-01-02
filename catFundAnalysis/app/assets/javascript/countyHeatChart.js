@@ -7,6 +7,9 @@ import echarts from 'echarts';
 let countyChart = echarts.init(document.getElementById('countyHeatChart'));
 let countydata = $('#countyHeatChart').data('county');
 let tob = $('#countyHeatChart').data('tob').split("_")[1].toUpperCase();
+let maxValue = $('#countyHeatChart').data('maxvalue')||100;
+let minValue = $('#countyHeatChart').data('minvalue')||-100;
+
 
 $.get('/static/assets/map/countynewgeo.json', function (usaJson) {
     countyChart.hideLoading();
@@ -28,8 +31,8 @@ $.get('/static/assets/map/countynewgeo.json', function (usaJson) {
         },
         visualMap: {
             left: 'right',
-            min: -100,
-            max: 100,
+            min: minValue,
+            max: maxValue,
             inRange: {
                 color: ['#313695', '#4575b4', '#74add1', '#abd9e9', '#e0f3f8', '#ffffbf', '#fee090', '#fdae61', '#f46d43', '#d73027', '#a50026']
             },
@@ -73,7 +76,7 @@ $.get('/static/assets/map/countynewgeo.json', function (usaJson) {
     var dataArray = new Array();
     for(var key in pChange) {
         if(key==='Total') continue;
-        option.series[0].data.push({name:key.toUpperCase(),value:parseFloat(pChange[key].toFixed(2))})
+        option.series[0].data.push({name:key.toUpperCase().replace(/[ ]/g,""),value:parseFloat(pChange[key].toFixed(2))})
     }
 
     console.log(option);
