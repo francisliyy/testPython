@@ -7,6 +7,7 @@ import echarts from 'echarts';
 let countyChart = echarts.init(document.getElementById('countyHeatChart'));
 let countydata = $('#countyHeatChart').data('county');
 let tob = $('#countyHeatChart').data('tob').split("_")[1].toUpperCase();
+tob = tob === 'LR' ? 'COMMERCIAL' : tob;
 let maxValue = $('#countyHeatChart').data('maxvalue')||100;
 let minValue = $('#countyHeatChart').data('minvalue')||-100;
 

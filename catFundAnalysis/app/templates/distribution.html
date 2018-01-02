@@ -41,7 +41,9 @@
     {{ super() }}
     <script type="text/javascript">
         $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
-        tobSelectedType = '{{tobSelectValue}}';
+        tob='{{tobSelectValue}}'
+        thisyear = '{{tyear}}';
+        lastyear = '{{lyear}}';
     </script>
     <script src="{{url_for('static',filename='js/distribution.js')}}"></script>
 {% endblock %}
