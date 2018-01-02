@@ -27,7 +27,9 @@ $.get('/static/assets/map/countynewgeo.json', function (usaJson) {
             trigger: 'item',
             showDelay: 0,
             transitionDuration: 0.2,
-            formatter: '{b}<br/>{c} (%)'
+            formatter:  function (params,ticket,callback) {
+                return params.name+"<br/>"+(params.value||0)+"(%)";                
+            },
         },
         visualMap: {
             left: 'right',
