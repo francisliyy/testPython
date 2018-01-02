@@ -76,6 +76,7 @@ $.get('/static/assets/map/countynewgeo.json', function (usaJson) {
     var dataArray = new Array();
     for(var key in pChange) {
         if(key==='Total') continue;
+        //since county name from geojson has no space, so space in csv data should be trimmed 
         option.series[0].data.push({name:key.toUpperCase().replace(/[ ]/g,""),value:parseFloat(pChange[key].toFixed(2))})
     }
 
