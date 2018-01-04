@@ -10,16 +10,18 @@ let tob = $('#countyHeatChart').data('tob').split("_")[1].toUpperCase();
 tob = tob === 'LR' ? 'COMMERCIAL' : tob;
 let maxValue = $('#countyHeatChart').data('maxvalue')||100;
 let minValue = $('#countyHeatChart').data('minvalue')||-100;
+let maptype = $('#countyHeatChart').data('maptype');
+let jsonfile = '/static/assets/map/'+maptype+'FL.json';
 
 
-$.get('/static/assets/map/countynewgeo.json', function (usaJson) {
+$.get(jsonfile, function (usaJson) {
     countyChart.hideLoading();
 
     echarts.registerMap('USA', usaJson, {
     });
     let option = {
         title: {
-            text: 'Florida Hurrican Losses (2017)',
+            text: 'Florida '+maptype+' Hurrican Losses (2017)',
             subtext: 'Type of Building : '+tob,
             sublink: '',
             left: 'right'
@@ -60,7 +62,7 @@ $.get('/static/assets/map/countynewgeo.json', function (usaJson) {
                 roam: true,
                 map: 'USA',
                 itemStyle:{
-                    normal:{label:{show:true}},
+                    normal:{label:{show:maptype=='County'?true:false}},
                     emphasis:{label:{show:true}}
                 },
                 // 文本位置修正

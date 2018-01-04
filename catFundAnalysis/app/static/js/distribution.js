@@ -8,7 +8,7 @@ $(function(){
 	});
 
 	$('#heatmapBtn').click(function(event) {
-		window.open($SCRIPT_ROOT+"/myview/showHeatChartCounty/"+tob+"/"+lastyear+"/"+thisyear);
+		window.open($SCRIPT_ROOT+"/myview/showHeatChart"+maptype+"/"+maptype+"/"+tob+"/"+lastyear+"/"+thisyear);
 	});
 });
 

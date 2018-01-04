@@ -16,7 +16,7 @@
 
         	{{ form.submit(class_="btn btn-primary") }}
 
-            {% if analytype=='County' %}
+            {% if (analytype=='County' or analytype=='ZipCode')%}
 
             <button class="btn btn-info" type="button" id="heatmapBtn" name="heatmapBtn">Heat Map</button>
 
@@ -44,6 +44,7 @@
         tob='{{tobSelectValue}}'
         thisyear = '{{tyear}}';
         lastyear = '{{lyear}}';
+        maptype = '{{analytype}}';
     </script>
     <script src="{{url_for('static',filename='js/distribution.js')}}"></script>
 {% endblock %}
