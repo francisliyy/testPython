@@ -20,12 +20,12 @@ $.get(jsonfile, function (usaJson) {
     echarts.registerMap('USA', usaJson, {
     });
     let option = {
-        title: {
+        /*title: {
             text: 'Florida '+maptype+' Hurrican Losses (2017)',
             subtext: 'Type of Building : '+tob,
             sublink: '',
             left: 'right'
-        },
+        },*/
         tooltip: {
             trigger: 'item',
             showDelay: 0,
@@ -35,14 +35,15 @@ $.get(jsonfile, function (usaJson) {
             },
         },
         visualMap: {
-            left: 'right',
+            left: 'left',
             min: minValue,
             max: maxValue,
             inRange: {
                 color: ['#313695', '#4575b4', '#74add1', '#abd9e9', '#e0f3f8', '#ffffbf', '#fee090', '#fdae61', '#f46d43', '#d73027', '#a50026']
             },
-            text:['High','Low'],           // 文本，默认为数值文本
-            calculable: true
+            //text:['High',''],           // 文本，默认为数值文本
+            splitNumber: 10,
+            
         },
         toolbox: {
             show: false,
@@ -62,7 +63,7 @@ $.get(jsonfile, function (usaJson) {
                 roam: true,
                 map: 'USA',
                 itemStyle:{
-                    normal:{label:{show:maptype=='County'?true:false}},
+                    //normal:{label:{show:maptype=='County'?true:false}},
                     emphasis:{label:{show:true}}
                 },
                 // 文本位置修正
