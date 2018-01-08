@@ -346,7 +346,7 @@ class MyView(BaseView):
             year_path = 'app/data/' + year
 
             year_lr = year_path + '/'+tob+'/valid_data.csv'
-            year_lr_df = pd.read_csv(year_lr,usecols=['YearBuilt','Units', 'LMs', 'LMapp', 'LMc', 'LMale'])
+            year_lr_df = pd.read_csv(year_lr,usecols=['YearBuilt','Units', 'LMs', 'LMapp', 'LMc', 'LMale','TotalLoss'])
             year_lr_df_lt_1970 = year_lr_df[year_lr_df['YearBuilt'] < 1970]
             year_lr_df_lte_1983 = year_lr_df[(year_lr_df['YearBuilt'] >= 1970) & (year_lr_df['YearBuilt'] <= 1983)]
             year_lr_df_lte_1993 = year_lr_df[(year_lr_df['YearBuilt'] >= 1984) & (year_lr_df['YearBuilt'] <= 1993)]
@@ -357,6 +357,12 @@ class MyView(BaseView):
             lr_exps_lte_1993 = ((year_lr_df_lte_1993.LMs + year_lr_df_lte_1993.LMapp + year_lr_df_lte_1993.LMc + year_lr_df_lte_1993.LMale) * year_lr_df_lte_1993.Units).sum()
             lr_exps_gte_1994 = ((year_lr_df_gte_1994.LMs + year_lr_df_gte_1994.LMapp + year_lr_df_gte_1994.LMc + year_lr_df_gte_1994.LMale) * year_lr_df_gte_1994.Units).sum()
             lr_exps_total = lr_exps_lt_1970 + (0 if np.isnan(lr_exps_lte_1983) else lr_exps_lte_1983) + lr_exps_lte_1993 + lr_exps_gte_1994
+
+            lr_aal_lt_1970 = year_lr_df_lt_1970.TotalLoss.sum()
+            lr_aal_lte_1983 = year_lr_df_lte_1983.TotalLoss.sum()
+            lr_aal_lte_1993 = year_lr_df_lte_1993.TotalLoss.sum()
+            lr_aal_gte_1994 = year_lr_df_gte_1994.TotalLoss.sum()
+            lr_aal_total = lr_aal_lt_1970 + lr_aal_lte_1983 + lr_aal_lte_1993 + lr_aal_gte_1994
 
             if tob == 'pr_lr': 
                 year_cr_risk = year_path + '/cr/CRILM_MidHighRise_AggRiskLosses.txt'
@@ -394,9 +400,12 @@ class MyView(BaseView):
                 year_exps_d = { year: [1,2,3,4,5],
                                 'Year Build':['<1970','1970~1983','1984~1993','>=1994','Total'],
                                 'Exposure':[lr_exps_lt_1970,lr_exps_lte_1983,lr_exps_lte_1993,lr_exps_gte_1994,lr_exps_total],
-                                'Total Change':[change_exps_lt_1970,change_exps_lte_1983,change_exps_lte_1993,change_exps_gte_1994,100]}
+                                'Total Change':[change_exps_lt_1970,change_exps_lte_1983,change_exps_lte_1993,change_exps_gte_1994,100],
+                                'AAL':[lr_aal_lt_1970,lr_aal_lte_1983,lr_aal_lte_1993,lr_aal_gte_1994,lr_aal_total]}
  
-            year_exps_df = pd.DataFrame(data=year_exps_d,index=[0,1,2,3,4]) 
+            year_exps_df = pd.DataFrame(data=year_exps_d,index=[0,1,2,3,4])
+            if tob != 'pr_lr': 
+                year_exps_df['Loss Costs/$1,000'] = year_exps_df['AAL']/year_exps_df['Exposure']*1000
            
             yearlist[i] = year_exps_df.fillna(0)
             i = i + 1
@@ -418,11 +427,12 @@ class MyView(BaseView):
             percent_change_d = {'CR Percentage Change':[percent_cr_exps_lt_1970,percent_cr_exps_lte_1983,percent_cr_exps_lte_1993,percent_cr_exps_gte_1994,percent_cr_exps_total],
                             'LR Percentage Change':[percent_lr_exps_lt_1970,percent_lr_exps_lte_1983,percent_lr_exps_lte_1993,percent_lr_exps_gte_1994,percent_lr_exps_total]} 
         else:
-
             percent_change_d = {'Percentage Change':[percent_cr_exps_lt_1970,percent_cr_exps_lte_1983,percent_cr_exps_lte_1993,percent_cr_exps_gte_1994,percent_cr_exps_total]} 
 
-
-        yearlist[2] = pd.DataFrame(data=percent_change_d,index=[0,1,2,3,4])                     
+        yearlist[2] = pd.DataFrame(data=percent_change_d,index=[0,1,2,3,4]) 
+        if tob != 'pr_lr': 
+            yearlist[2]['AAL Inc(%)'] = (yearlist[1]['AAL']-yearlist[0]['AAL'])/yearlist[0]['AAL']*100     
+            yearlist[2]['Loss Costs Inc(%)'] = (yearlist[1]['Loss Costs/$1,000']-yearlist[0]['Loss Costs/$1,000'])/yearlist[0]['Loss Costs/$1,000']*100           
 
         return yearlist
 
@@ -437,6 +447,7 @@ class MyView(BaseView):
         int_num_format = lambda x: '{:,}'.format(x)
         flt_num_format = lambda x: '${:,.2f}'.format(x)
         flt_percent_format = lambda x: '{:,.2f}%'.format(x)
+        loss_costs_format = lambda x: '{:,.3f}'.format(x)
 
         yeartup = (lastyear, thisyear)
         yearlist = MyView.yearbuild(yeartup,tobSelectValue)
@@ -452,8 +463,8 @@ class MyView(BaseView):
                                        result_df.to_html(classes='table table-bordered',index=False,formatters={'CR Exposure':flt_num_format,'LR Exposure':flt_num_format,'Total Change':flt_percent_format,'CR Percentage Change':flt_percent_format,'LR Percentage Change':flt_percent_format},columns=[thisyear,'Year Build','CR Exposure','LR Exposure','Total Change','CR Percentage Change','LR Percentage Change'])])
         else:
             return self.render_template('distribution.html',lyear=lastyear,tyear=thisyear,lsim=2017,tsim=2018,analytype='Yearbuild',title='Yearbuilt',form=tobform,
-                               tables=[lastyear_exps_df.to_html(classes='table table-bordered',index=False,formatters={'Exposure':flt_num_format,'Total Change':flt_percent_format},columns=[lastyear,'Year Build','Exposure','Total Change']),
-                                       result_df.to_html(classes='table table-bordered',index=False,formatters={'Exposure':flt_num_format,'Total Change':flt_percent_format,'Percentage Change':flt_percent_format},columns=[thisyear,'Year Build','Exposure','Total Change','Percentage Change'])])
+                               tables=[lastyear_exps_df.to_html(classes='table table-bordered',index=False,formatters={'Exposure':flt_num_format,'Total Change':flt_percent_format,'AAL':flt_num_format,'Loss Costs/$1,000':loss_costs_format},columns=[lastyear,'Year Build','Exposure','Total Change','AAL','Loss Costs/$1,000']),
+                                       result_df.to_html(classes='table table-bordered',index=False,formatters={'Exposure':flt_num_format,'Total Change':flt_percent_format,'Percentage Change':flt_percent_format,'AAL':flt_num_format,'AAL Inc(%)':flt_percent_format,'Loss Costs/$1,000':loss_costs_format,'Loss Costs Inc(%)':flt_percent_format},columns=[thisyear,'Year Build','Exposure','Total Change','Percentage Change','AAL','AAL Inc(%)','Loss Costs/$1,000','Loss Costs Inc(%)'])])
 
     @expose('/exportYearbuild/<string:lastyear>/<string:thisyear>/<int:lastsim>/<int:thissim>')
     @has_access
