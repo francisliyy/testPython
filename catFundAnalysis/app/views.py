@@ -498,7 +498,7 @@ class MyView(BaseView):
             year_path = 'app/data/' + year
 
             year_lr = year_path + '/'+tob+'/valid_data.csv'
-            year_lr_df = pd.read_csv(year_lr,usecols=['Region','Units', 'LMs', 'LMapp', 'LMc', 'LMale'])
+            year_lr_df = pd.read_csv(year_lr,usecols=['Region','Units', 'LMs', 'LMapp', 'LMc', 'LMale','TotalLoss'])
 
             year_lr_df_Central = year_lr_df[year_lr_df['Region'] == 'Central']
             year_lr_df_Keys = year_lr_df[year_lr_df['Region'] == 'Keys']
@@ -510,6 +510,12 @@ class MyView(BaseView):
             lr_exps_North = ((year_lr_df_North.LMs + year_lr_df_North.LMapp + year_lr_df_North.LMc + year_lr_df_North.LMale) * year_lr_df_North.Units).sum()
             lr_exps_South = ((year_lr_df_South.LMs + year_lr_df_South.LMapp + year_lr_df_South.LMc + year_lr_df_South.LMale) * year_lr_df_South.Units).sum()
             lr_exps_total = lr_exps_Central + lr_exps_Keys + lr_exps_North + lr_exps_South
+
+            lr_aal_Central = year_lr_df_Central.TotalLoss.sum()
+            lr_aal_Keys = year_lr_df_Keys.TotalLoss.sum()
+            lr_aal_North = year_lr_df_North.TotalLoss.sum()
+            lr_aal_South = year_lr_df_South.TotalLoss.sum()
+            lr_aal_total = year_lr_df.TotalLoss.sum()
 
             if tob == 'pr_lr':
                 year_cr_risk = year_path + '/cr/CRILM_MidHighRise_AggRiskLosses.txt'
@@ -544,9 +550,13 @@ class MyView(BaseView):
                 region_exps_d = {year: [1,2,3,4,5],
                                 'Region':['Central','Keys','North','South','Total'],
                                 'Exposure':[lr_exps_Central,lr_exps_Keys,lr_exps_North,lr_exps_South,lr_exps_total],
-                                'Total Change':[change_exps_Central,change_exps_Keys,change_exps_North,change_exps_South,100]}
+                                'Total Change':[change_exps_Central,change_exps_Keys,change_exps_North,change_exps_South,100],
+                                'AAL':[lr_aal_Central,lr_aal_Keys,lr_aal_North,lr_aal_South,lr_aal_total]}
 
             region_exps_df = pd.DataFrame(data=region_exps_d,index=[0,1,2,3,4]) 
+            if tob != 'pr_lr': 
+                region_exps_df['Loss Costs/$1,000'] = region_exps_df['AAL']/region_exps_df['Exposure']*1000
+
             regionlist[i] = region_exps_df.fillna(0)
             i = i + 1
 
@@ -577,7 +587,11 @@ class MyView(BaseView):
             percent_change_d = {'Percentage Change':[percent_cr_exps_Central,percent_cr_exps_Keys,percent_cr_exps_North,percent_cr_exps_South,percent_cr_exps_total]} 
 
 
-        regionlist[2] = pd.DataFrame(data=percent_change_d,index=[0,1,2,3,4]) 
+        regionlist[2] = pd.DataFrame(data=percent_change_d,index=[0,1,2,3,4])
+        if tob != 'pr_lr': 
+            regionlist[2]['AAL Inc(%)'] = (regionlist[1]['AAL']-regionlist[0]['AAL'])/regionlist[0]['AAL']*100
+            regionlist[2]['Loss Costs Inc(%)'] = (regionlist[1]['Loss Costs/$1,000']-regionlist[0]['Loss Costs/$1,000'])/regionlist[0]['Loss Costs/$1,000']*100           
+        regionlist[2] = regionlist[2].fillna(0) 
 
         return  regionlist
 
@@ -592,6 +606,7 @@ class MyView(BaseView):
         int_num_format = lambda x: '{:,}'.format(x)
         flt_num_format = lambda x: '${:,.2f}'.format(x)
         flt_percent_format = lambda x: '{:,.2f}%'.format(x)
+        loss_costs_format = lambda x: '{:,.3f}'.format(x)
 
         yeartup = (lastyear, thisyear)
         regionlist = MyView.regionAna(yeartup,tobSelectValue)
@@ -607,8 +622,8 @@ class MyView(BaseView):
                                        result_df.to_html(classes='table table-bordered',index=False,formatters={'CR Exposure':flt_num_format,'LR Exposure':flt_num_format,'Total Change':flt_percent_format,'CR Percentage Change':flt_percent_format,'LR Percentage Change':flt_percent_format,'Total Percentage Change':flt_percent_format},columns=[thisyear,'Region','CR Exposure','LR Exposure','Total Change','CR Percentage Change','LR Percentage Change','Total Percentage Change'])])
         else:
             return self.render_template('distribution.html',lyear=lastyear,tyear=thisyear,lsim=2017,tsim=2018,analytype='Region',title='Region',form=tobform,
-                               tables=[lastyear_exps_df.to_html(classes='table table-bordered',index=False,formatters={'Exposure':flt_num_format,'Total Change':flt_percent_format},columns=[lastyear,'Region','Exposure','Total Change']),
-                                       result_df.to_html(classes='table table-bordered',index=False,formatters={'Exposure':flt_num_format,'Total Change':flt_percent_format,'Percentage Change':flt_percent_format,'Total Percentage Change':flt_percent_format},columns=[thisyear,'Region','Exposure','Total Change','Percentage Change'])])
+                               tables=[lastyear_exps_df.to_html(classes='table table-bordered',index=False,formatters={'Exposure':flt_num_format,'Total Change':flt_percent_format,'AAL':flt_num_format,'Loss Costs/$1,000':loss_costs_format},columns=[lastyear,'Region','Exposure','Total Change','AAL','Loss Costs/$1,000']),
+                                       result_df.to_html(classes='table table-bordered',index=False,formatters={'Exposure':flt_num_format,'Total Change':flt_percent_format,'Percentage Change':flt_percent_format,'Total Percentage Change':flt_percent_format,'AAL':flt_num_format,'AAL Inc(%)':flt_percent_format,'Loss Costs/$1,000':loss_costs_format,'Loss Costs Inc(%)':flt_percent_format},columns=[thisyear,'Region','Exposure','Total Change','Percentage Change','AAL','AAL Inc(%)','Loss Costs/$1,000','Loss Costs Inc(%)'])])
 
 
 
