@@ -362,7 +362,7 @@ class MyView(BaseView):
             lr_aal_lte_1983 = year_lr_df_lte_1983.TotalLoss.sum()
             lr_aal_lte_1993 = year_lr_df_lte_1993.TotalLoss.sum()
             lr_aal_gte_1994 = year_lr_df_gte_1994.TotalLoss.sum()
-            lr_aal_total = lr_aal_lt_1970 + lr_aal_lte_1983 + lr_aal_lte_1993 + lr_aal_gte_1994
+            lr_aal_total = year_lr_df.TotalLoss.sum()
 
             if tob == 'pr_lr': 
                 year_cr_risk = year_path + '/cr/CRILM_MidHighRise_AggRiskLosses.txt'
@@ -431,9 +431,9 @@ class MyView(BaseView):
 
         yearlist[2] = pd.DataFrame(data=percent_change_d,index=[0,1,2,3,4]) 
         if tob != 'pr_lr': 
-            yearlist[2]['AAL Inc(%)'] = (yearlist[1]['AAL']-yearlist[0]['AAL'])/yearlist[0]['AAL']*100     
+            yearlist[2]['AAL Inc(%)'] = (yearlist[1]['AAL']-yearlist[0]['AAL'])/yearlist[0]['AAL']*100
             yearlist[2]['Loss Costs Inc(%)'] = (yearlist[1]['Loss Costs/$1,000']-yearlist[0]['Loss Costs/$1,000'])/yearlist[0]['Loss Costs/$1,000']*100           
-
+        yearlist[2] = yearlist[2].fillna(0)
         return yearlist
 
     @expose('/showYearbuild/<string:lastyear>/<string:thisyear>')
