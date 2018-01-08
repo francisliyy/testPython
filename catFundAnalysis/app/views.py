@@ -103,6 +103,7 @@ class MyView(BaseView):
                                  'AAL' : [lastyear_commercial_aal,lastyear_residential_aal,lastyear_mobile_aal,lastyear_rental_aal,lastyear_condo_aal,lastyear_total_aal],
                                  'AAL Inc (%)' : [0,0,0,0,0,0]}
         lastyear_comparison_df = pd.DataFrame(data=lastyear_comparison_d)
+        lastyear_comparison_df['Loss Costs/$1,000'] = lastyear_comparison_df['AAL']/lastyear_comparison_df['Exp']*1000
         #lastyear_comparison_df.style.format({'Unit Inc (%)':'{:.2%}','Exp Inc (%)':'{:.2%}','AAL Inc (%)':'{:.2%}'})
 
         #thisyear 
@@ -175,6 +176,8 @@ class MyView(BaseView):
                                  'AAL' : [thisyear_commercial_aal,thisyear_residential_aal,thisyear_mobile_aal,thisyear_rental_aal,thisyear_condo_aal,thisyear_total_aal],
                                  'AAL Inc (%)' : [thisyear_commercial_aal_ratio,thisyear_residential_aal_ratio,thisyear_mobile_aal_ratio,thisyear_rental_aal_ratio,thisyear_condo_aal_ratio,thisyear_total_aal_ratio]}        
         thisyear_comparison_df = pd.DataFrame(data=thisyear_comparison_d)
+        thisyear_comparison_df['Loss Costs/$1,000'] = thisyear_comparison_df['AAL']/thisyear_comparison_df['Exp']*1000
+        thisyear_comparison_df['Loss Costs Inc(%)'] = (thisyear_comparison_df['Loss Costs/$1,000'] - lastyear_comparison_df['Loss Costs/$1,000']) / lastyear_comparison_df['Loss Costs/$1,000'] * 100.00
 
         return [lastyear_comparison_df,thisyear_comparison_df]   
         #thisyear_comparison_df.style.format({'Unit Inc (%)':'{:.2%}','Exp Inc (%)':'{:.2%}','AAL Inc (%)':'{:.2%}'})    
@@ -257,14 +260,15 @@ class MyView(BaseView):
         int_num_format = lambda x: '{:,}'.format(x)
         flt_num_format = lambda x: '${:,.2f}'.format(x)
         flt_percent_format = lambda x: '{:,.2f}%'.format(x)
+        loss_costs_format = lambda x: '{:,.3f}'.format(x)
 
         tables = MyView.comparisons(lastyear, thisyear, lastsim, thissim)
         lastyear_comparison_df = tables[0]
         thisyear_comparison_df = tables[1]
 
         return self.render_template('export.html',lyear=lastyear,tyear=thisyear,lsim=lastsim,tsim=thissim,analytype='exportComparisons',title='CatFund Comparisons',ratemarking='exportRateMarking',
-                               tables=[lastyear_comparison_df.to_html(classes='table table-bordered',index=False,formatters={'Total Unit Count':int_num_format,'Exp':flt_num_format,'AAL':flt_num_format},columns=[lastyear,'TOB','Total Unit Count','Unit Inc (%)','Exp','Exp Inc (%)','AAL','AAL Inc (%)']),
-                                       thisyear_comparison_df.to_html(classes='table table-bordered',index=False,formatters={'Total Unit Count':int_num_format,'Unit Inc (%)':flt_percent_format,'Exp':flt_num_format,'Exp Inc (%)':flt_percent_format,'AAL':flt_num_format,'AAL Inc (%)':flt_percent_format},columns=[thisyear,'TOB','Total Unit Count','Unit Inc (%)','Exp','Exp Inc (%)','AAL','AAL Inc (%)'])])
+                               tables=[lastyear_comparison_df.to_html(classes='table table-bordered',index=False,formatters={'Total Unit Count':int_num_format,'Exp':flt_num_format,'AAL':flt_num_format,'Loss Costs/$1,000':loss_costs_format},columns=[lastyear,'TOB','Total Unit Count','Unit Inc (%)','Exp','Exp Inc (%)','AAL','AAL Inc (%)','Loss Costs/$1,000']),
+                                       thisyear_comparison_df.to_html(classes='table table-bordered',index=False,formatters={'Total Unit Count':int_num_format,'Unit Inc (%)':flt_percent_format,'Exp':flt_num_format,'Exp Inc (%)':flt_percent_format,'AAL':flt_num_format,'AAL Inc (%)':flt_percent_format,'Loss Costs/$1,000':loss_costs_format,'Loss Costs Inc(%)':flt_percent_format},columns=[thisyear,'TOB','Total Unit Count','Unit Inc (%)','Exp','Exp Inc (%)','AAL','AAL Inc (%)','Loss Costs/$1,000','Loss Costs Inc(%)'])])
 
     @expose('/exportComparisons/<string:lastyear>/<string:thisyear>/<int:lastsim>/<int:thissim>')
     @has_access
