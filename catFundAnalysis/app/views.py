@@ -104,6 +104,7 @@ class MyView(BaseView):
                                  'AAL Inc (%)' : [0,0,0,0,0,0]}
         lastyear_comparison_df = pd.DataFrame(data=lastyear_comparison_d)
         lastyear_comparison_df['Loss Costs/$1,000'] = lastyear_comparison_df['AAL']/lastyear_comparison_df['Exp']*1000
+        lastyear_comparison_df['Loss Costs Inc(%)'] = [0,0,0,0,0,0]
         #lastyear_comparison_df.style.format({'Unit Inc (%)':'{:.2%}','Exp Inc (%)':'{:.2%}','AAL Inc (%)':'{:.2%}'})
 
         #thisyear 
@@ -267,7 +268,7 @@ class MyView(BaseView):
         thisyear_comparison_df = tables[1]
 
         return self.render_template('export.html',lyear=lastyear,tyear=thisyear,lsim=lastsim,tsim=thissim,analytype='exportComparisons',title='CatFund Comparisons',ratemarking='exportRateMarking',
-                               tables=[lastyear_comparison_df.to_html(classes='table table-bordered',index=False,formatters={'Total Unit Count':int_num_format,'Exp':flt_num_format,'AAL':flt_num_format,'Loss Costs/$1,000':loss_costs_format},columns=[lastyear,'TOB','Total Unit Count','Unit Inc (%)','Exp','Exp Inc (%)','AAL','AAL Inc (%)','Loss Costs/$1,000']),
+                               tables=[lastyear_comparison_df.to_html(classes='table table-bordered',index=False,formatters={'Total Unit Count':int_num_format,'Exp':flt_num_format,'AAL':flt_num_format,'Loss Costs/$1,000':loss_costs_format,'Loss Costs Inc(%)':flt_percent_format},columns=[lastyear,'TOB','Total Unit Count','Unit Inc (%)','Exp','Exp Inc (%)','AAL','AAL Inc (%)','Loss Costs/$1,000','Loss Costs Inc(%)']),
                                        thisyear_comparison_df.to_html(classes='table table-bordered',index=False,formatters={'Total Unit Count':int_num_format,'Unit Inc (%)':flt_percent_format,'Exp':flt_num_format,'Exp Inc (%)':flt_percent_format,'AAL':flt_num_format,'AAL Inc (%)':flt_percent_format,'Loss Costs/$1,000':loss_costs_format,'Loss Costs Inc(%)':flt_percent_format},columns=[thisyear,'TOB','Total Unit Count','Unit Inc (%)','Exp','Exp Inc (%)','AAL','AAL Inc (%)','Loss Costs/$1,000','Loss Costs Inc(%)'])])
 
     @expose('/exportComparisons/<string:lastyear>/<string:thisyear>/<int:lastsim>/<int:thissim>')
@@ -278,7 +279,7 @@ class MyView(BaseView):
         lastyear_comparison_df = tables[0]
         thisyear_comparison_df = tables[1]
 
-        df = pd.concat([lastyear_comparison_df[['TOB','Total Unit Count','Unit Inc (%)','Exp','Exp Inc (%)','AAL','AAL Inc (%)']],thisyear_comparison_df[['TOB','Total Unit Count','Unit Inc (%)','Exp','Exp Inc (%)','AAL','AAL Inc (%)']]])
+        df = pd.concat([lastyear_comparison_df[['TOB','Total Unit Count','Unit Inc (%)','Exp','Exp Inc (%)','AAL','AAL Inc (%)','Loss Costs/$1,000','Loss Costs Inc(%)']],thisyear_comparison_df[['TOB','Total Unit Count','Unit Inc (%)','Exp','Exp Inc (%)','AAL','AAL Inc (%)','Loss Costs/$1,000','Loss Costs Inc(%)']]])
         index = 0
         first_col = [lastyear,lastyear,lastyear,lastyear,lastyear,lastyear,thisyear,thisyear,thisyear,thisyear,thisyear,thisyear]
         df.insert(loc=index,column='year',value=first_col)
@@ -446,11 +447,11 @@ class MyView(BaseView):
         result_df = pd.concat([thisyear_exps_df, percent_exps_df], axis=1)
 
         if tobSelectValue == 'pr_lr' :
-            return self.render_template('distribution.html',lyear=lastyear,tyear=thisyear,lsim=2016,tsim=2017,analytype='Yearbuild',title='Yearbuilt',form=tobform,
+            return self.render_template('distribution.html',lyear=lastyear,tyear=thisyear,lsim=2017,tsim=2018,analytype='Yearbuild',title='Yearbuilt',form=tobform,
                                tables=[lastyear_exps_df.to_html(classes='table table-bordered',index=False,formatters={'CR Exposure':flt_num_format,'LR Exposure':flt_num_format,'Total Change':flt_percent_format},columns=[lastyear,'Year Build','CR Exposure','LR Exposure','Total Change']),
                                        result_df.to_html(classes='table table-bordered',index=False,formatters={'CR Exposure':flt_num_format,'LR Exposure':flt_num_format,'Total Change':flt_percent_format,'CR Percentage Change':flt_percent_format,'LR Percentage Change':flt_percent_format},columns=[thisyear,'Year Build','CR Exposure','LR Exposure','Total Change','CR Percentage Change','LR Percentage Change'])])
         else:
-            return self.render_template('distribution.html',lyear=lastyear,tyear=thisyear,lsim=2016,tsim=2017,analytype='Yearbuild',title='Yearbuilt',form=tobform,
+            return self.render_template('distribution.html',lyear=lastyear,tyear=thisyear,lsim=2017,tsim=2018,analytype='Yearbuild',title='Yearbuilt',form=tobform,
                                tables=[lastyear_exps_df.to_html(classes='table table-bordered',index=False,formatters={'Exposure':flt_num_format,'Total Change':flt_percent_format},columns=[lastyear,'Year Build','Exposure','Total Change']),
                                        result_df.to_html(classes='table table-bordered',index=False,formatters={'Exposure':flt_num_format,'Total Change':flt_percent_format,'Percentage Change':flt_percent_format},columns=[thisyear,'Year Build','Exposure','Total Change','Percentage Change'])])
 
@@ -590,11 +591,11 @@ class MyView(BaseView):
         result_df = pd.concat([thisyear_exps_df, percent_exps_df], axis=1)
 
         if tobSelectValue == 'pr_lr':
-            return self.render_template('distribution.html',lyear=lastyear,tyear=thisyear,lsim=2016,tsim=2017,analytype='Region',title='Region',form=tobform,
+            return self.render_template('distribution.html',lyear=lastyear,tyear=thisyear,lsim=2017,tsim=2018,analytype='Region',title='Region',form=tobform,
                                tables=[lastyear_exps_df.to_html(classes='table table-bordered',index=False,formatters={'CR Exposure':flt_num_format,'LR Exposure':flt_num_format,'Total Change':flt_percent_format},columns=[lastyear,'Region','CR Exposure','LR Exposure','Total Change']),
                                        result_df.to_html(classes='table table-bordered',index=False,formatters={'CR Exposure':flt_num_format,'LR Exposure':flt_num_format,'Total Change':flt_percent_format,'CR Percentage Change':flt_percent_format,'LR Percentage Change':flt_percent_format,'Total Percentage Change':flt_percent_format},columns=[thisyear,'Region','CR Exposure','LR Exposure','Total Change','CR Percentage Change','LR Percentage Change','Total Percentage Change'])])
         else:
-            return self.render_template('distribution.html',lyear=lastyear,tyear=thisyear,lsim=2016,tsim=2017,analytype='Region',title='Region',form=tobform,
+            return self.render_template('distribution.html',lyear=lastyear,tyear=thisyear,lsim=2017,tsim=2018,analytype='Region',title='Region',form=tobform,
                                tables=[lastyear_exps_df.to_html(classes='table table-bordered',index=False,formatters={'Exposure':flt_num_format,'Total Change':flt_percent_format},columns=[lastyear,'Region','Exposure','Total Change']),
                                        result_df.to_html(classes='table table-bordered',index=False,formatters={'Exposure':flt_num_format,'Total Change':flt_percent_format,'Percentage Change':flt_percent_format,'Total Percentage Change':flt_percent_format},columns=[thisyear,'Region','Exposure','Total Change','Percentage Change'])])
 
@@ -714,11 +715,11 @@ class MyView(BaseView):
         result_df = pd.concat([thisyear_exps_df, percent_exps_df], axis=1)
 
         if tobSelectValue == 'pr_lr':
-            return self.render_template('distribution.html',lyear=lastyear,tyear=thisyear,lsim=2016,tsim=2017,analytype='Construction',title='Construction Type',form=tobform,
+            return self.render_template('distribution.html',lyear=lastyear,tyear=thisyear,lsim=2017,tsim=2018,analytype='Construction',title='Construction Type',form=tobform,
                                tables=[lastyear_exps_df.to_html(classes='table table-bordered',index=False,formatters={'CR Exposure':flt_num_format,'LR Exposure':flt_num_format,'Total Change':flt_percent_format},columns=[lastyear,'Construction Type','CR Exposure','LR Exposure','Total Change']),
                                        result_df.to_html(classes='table table-bordered',index=False,formatters={'CR Exposure':flt_num_format,'LR Exposure':flt_num_format,'Total Change':flt_percent_format,'CR Percentage Change':flt_percent_format,'LR Percentage Change':flt_percent_format,},columns=[thisyear,'Construction Type','CR Exposure','LR Exposure','Total Change','CR Percentage Change','LR Percentage Change'])])
         else:
-            return self.render_template('distribution.html',lyear=lastyear,tyear=thisyear,lsim=2016,tsim=2017,analytype='Construction',title='Construction Type',form=tobform,
+            return self.render_template('distribution.html',lyear=lastyear,tyear=thisyear,lsim=2017,tsim=2018,analytype='Construction',title='Construction Type',form=tobform,
                                tables=[lastyear_exps_df.to_html(classes='table table-bordered',index=False,formatters={'Exposure':flt_num_format,'Total Change':flt_percent_format},columns=[lastyear,'Construction Type','Exposure','Total Change']),
                                        result_df.to_html(classes='table table-bordered',index=False,formatters={'Exposure':flt_num_format,'Total Change':flt_percent_format,'Percentage Change':flt_percent_format,},columns=[thisyear,'Construction Type','Exposure','Total Change','Percentage Change'])])
 
@@ -824,11 +825,11 @@ class MyView(BaseView):
         #lastyear_exps_df = pd.concat([countylist[0],countylist[1]],axis=1)
 
         if tobSelectValue == 'pr_lr':
-            return self.render_template('distribution.html',lyear=lastyear,tyear=thisyear,lsim=2016,tsim=2017,analytype='County',title='County',form=tobform,tobSelectValue=tobSelectValue,
+            return self.render_template('distribution.html',lyear=lastyear,tyear=thisyear,lsim=2017,tsim=2018,analytype='County',title='County',form=tobform,tobSelectValue=tobSelectValue,
                                tables=[lastyear_exps_df.to_html(classes='table table-bordered',index=True,formatters={'CR Exposure':flt_num_format,'LR Exposure':flt_num_format,'Total Percentage':flt_percent_format},columns=['CR Exposure','LR Exposure','Total Percentage'])
                                       ,thisyear_exps_df.to_html(classes='table table-bordered',index=True,formatters={'CR Exposure':flt_num_format,'LR Exposure':flt_num_format,'Total Percentage':flt_percent_format,'CR Percentage Change':flt_percent_format,'LR Percentage Change':flt_percent_format,'Total Percentage Change':flt_percent_format},columns=['CR Exposure','LR Exposure','Total Percentage','CR Percentage Change','LR Percentage Change','Total Percentage Change'])])
         else:
-            return self.render_template('distribution.html',lyear=lastyear,tyear=thisyear,lsim=2016,tsim=2017,analytype='County',title='County',form=tobform,tobSelectValue=tobSelectValue,
+            return self.render_template('distribution.html',lyear=lastyear,tyear=thisyear,lsim=2017,tsim=2018,analytype='County',title='County',form=tobform,tobSelectValue=tobSelectValue,
                                tables=[lastyear_exps_df.to_html(classes='table table-bordered',index=True,formatters={'Exposure':flt_num_format,'Total Percentage':flt_percent_format},columns=['Exposure','Total Percentage'])
                                       ,thisyear_exps_df.to_html(classes='table table-bordered',index=True,formatters={'Exposure':flt_num_format,'Total Percentage':flt_percent_format,'Total Percentage Change':flt_percent_format},columns=['Exposure','Total Percentage','Total Percentage Change'])])
     
@@ -850,7 +851,7 @@ class MyView(BaseView):
         minValue = thisyear_exps_df['Total Percentage Change'].min()
         #lastyear_exps_df = pd.concat([countylist[0],countylist[1]],axis=1)
 
-        return self.render_template('heatChartForCounty.html',maptype=maptype,maxValue=maxValue,minValue=minValue,tob=tobSelectValue,lyear=lastyear,tyear=thisyear,lsim=2016,tsim=2017,countyData=thisyear_exps_df.to_json())
+        return self.render_template('heatChartForCounty.html',maptype=maptype,maxValue=maxValue,minValue=minValue,tob=tobSelectValue,lyear=lastyear,tyear=thisyear,lsim=2017,tsim=2018,countyData=thisyear_exps_df.to_json())
 
     @expose('/exportCounty/<string:lastyear>/<string:thisyear>/<int:lastsim>/<int:thissim>')
     @has_access
@@ -952,11 +953,11 @@ class MyView(BaseView):
         #lastyear_exps_df = pd.concat([countylist[0],countylist[1]],axis=1)
 
         if tobSelectValue == 'pr_lr':
-            return self.render_template('distribution.html',lyear=lastyear,tyear=thisyear,lsim=2016,tsim=2017,analytype='ZipCode',title='ZipCode',form=tobform,tobSelectValue=tobSelectValue,
+            return self.render_template('distribution.html',lyear=lastyear,tyear=thisyear,lsim=2017,tsim=2018,analytype='ZipCode',title='ZipCode',form=tobform,tobSelectValue=tobSelectValue,
                                tables=[lastyear_exps_df.to_html(classes='table table-bordered',index=True,formatters={'ZipCode':int_num_format,'CR Exposure':flt_num_format,'LR Exposure':flt_num_format,'Total Percentage':flt_percent_format},columns=['CR Exposure','LR Exposure','Total Percentage'])
                                       ,thisyear_exps_df.to_html(classes='table table-bordered',index=True,formatters={'ZipCode':int_num_format,'CR Exposure':flt_num_format,'LR Exposure':flt_num_format,'Total Percentage':flt_percent_format,'CR Percentage Change':flt_percent_format,'LR Percentage Change':flt_percent_format,'Total Percentage Change':flt_percent_format},columns=['CR Exposure','LR Exposure','Total Percentage','CR Percentage Change','LR Percentage Change','Total Percentage Change'])])
         else:
-            return self.render_template('distribution.html',lyear=lastyear,tyear=thisyear,lsim=2016,tsim=2017,analytype='ZipCode',title='ZipCode',form=tobform,tobSelectValue=tobSelectValue,
+            return self.render_template('distribution.html',lyear=lastyear,tyear=thisyear,lsim=2017,tsim=2018,analytype='ZipCode',title='ZipCode',form=tobform,tobSelectValue=tobSelectValue,
                                tables=[lastyear_exps_df.to_html(classes='table table-bordered',index=True,formatters={'ZipCode':int_num_format,'Exposure':flt_num_format,'Total Percentage':flt_percent_format},columns=['Exposure','Total Percentage'])
                                       ,thisyear_exps_df.to_html(classes='table table-bordered',index=True,formatters={'ZipCode':int_num_format,'Exposure':flt_num_format,'Total Percentage':flt_percent_format,'Total Percentage Change':flt_percent_format},columns=['Exposure','Total Percentage','Total Percentage Change'])])
     
@@ -978,19 +979,19 @@ class MyView(BaseView):
         minValue = thisyear_exps_df['Total Percentage Change'].min()
         #lastyear_exps_df = pd.concat([countylist[0],countylist[1]],axis=1)
 
-        return self.render_template('heatChartForCounty.html',maptype=maptype,maxValue=maxValue,minValue=minValue,tob=tobSelectValue,lyear=lastyear,tyear=thisyear,lsim=2016,tsim=2017,countyData=thisyear_exps_df.to_json())
+        return self.render_template('heatChartForCounty.html',maptype=maptype,maxValue=maxValue,minValue=minValue,tob=tobSelectValue,lyear=lastyear,tyear=thisyear,lsim=2017,tsim=2018,countyData=thisyear_exps_df.to_json())
     
 
 #appbuilder.add_view(MyView(), "Method1", category='My View')
 #appbuilder.add_view(MyView(), "Method2", href='/myview/method2/jonh', category='My View')
 # Use add link instead there is no need to create MyView twice.
 #appbuilder.add_link("Method2", href='/myview/method2/jonh', category='My View')
-appbuilder.add_view(MyView(),"comparisons", href='/myview/showComparisons/2016/2017/57000/58000', category='My View')
-appbuilder.add_link("yearbuild", href='/myview/showYearbuild/2016/2017', category='My View')
-appbuilder.add_link("region", href='/myview/showRegion/2016/2017', category='My View')
-appbuilder.add_link("county", href='/myview/showCounty/2016/2017', category='My View')
-appbuilder.add_link("zipcode", href='/myview/showZipCode/2016/2017', category='My View')
-appbuilder.add_link("construction", href='/myview/showConstruction/2016/2017', category='My View')
+appbuilder.add_view(MyView(),"comparisons", href='/myview/showComparisons/2017/2018/57000/58000', category='My View')
+appbuilder.add_link("yearbuild", href='/myview/showYearbuild/2017/2018', category='My View')
+appbuilder.add_link("region", href='/myview/showRegion/2017/2018', category='My View')
+appbuilder.add_link("county", href='/myview/showCounty/2017/2018', category='My View')
+appbuilder.add_link("zipcode", href='/myview/showZipCode/2017/2018', category='My View')
+appbuilder.add_link("construction", href='/myview/showConstruction/2017/2018', category='My View')
 
 @appbuilder.app.errorhandler(404)
 def page_not_found(e):
