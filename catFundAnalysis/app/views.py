@@ -664,7 +664,7 @@ class MyView(BaseView):
             year_lr = year_path + '/' + tob + '/valid_data.csv'
 
             #year_cr_df_risk = pd.read_csv(year_cr_risk,usecols=['Region','LMs', 'LMapp', 'LMc', 'LMale'])
-            year_lr_df = pd.read_csv(year_lr,usecols=['ConstType','Units', 'LMs', 'LMapp', 'LMc', 'LMale'])  
+            year_lr_df = pd.read_csv(year_lr,usecols=['ConstType','Units', 'LMs', 'LMapp', 'LMc', 'LMale','TotalLoss'])  
 
             year_lr_df_Frame = year_lr_df[year_lr_df['ConstType'] == 'Frame']
             year_lr_df_Masonry = year_lr_df[year_lr_df['ConstType'] == 'Masonry']
@@ -678,6 +678,11 @@ class MyView(BaseView):
             lr_exps_Other = ((year_lr_df_Other.LMs + year_lr_df_Other.LMapp + year_lr_df_Other.LMc + year_lr_df_Other.LMale) * year_lr_df_Other.Units).sum()
             #cr_exps_total = cr_exps_Central + cr_exps_Keys + cr_exps_North + cr_exps_South
             lr_exps_total = lr_exps_Frame + lr_exps_Masonry + lr_exps_Other
+
+            lr_aal_Frame = year_lr_df_Frame.TotalLoss.sum()
+            lr_aal_Masonry = year_lr_df_Masonry.TotalLoss.sum()
+            lr_aal_Other = year_lr_df_Other.TotalLoss.sum()
+            lr_aal_total = year_lr_df.TotalLoss.sum()
 
             change_exps_Frame = (0 + lr_exps_Frame) / (0 + lr_exps_total) * 100
             change_exps_Masonry = (0 + lr_exps_Masonry) / (0 + lr_exps_total) * 100
@@ -693,9 +698,13 @@ class MyView(BaseView):
                 construction_exps_d = {year: [1,2,3,4],
                                 'Construction Type':['Frame','Masonry','Other','Total'],
                                 'Exposure':[lr_exps_Frame,lr_exps_Masonry,lr_exps_Other,lr_exps_total],
-                                'Total Change':[change_exps_Frame,change_exps_Masonry,change_exps_Other,100]}
+                                'Total Change':[change_exps_Frame,change_exps_Masonry,change_exps_Other,100],
+                                'AAL':[lr_aal_Frame,lr_aal_Masonry,change_exps_Other,lr_aal_total]}
 
             construction_exps_df = pd.DataFrame(data=construction_exps_d,index=[0,1,2,3]) 
+            if tob != 'pr_lr': 
+                construction_exps_df['Loss Costs/$1,000'] = construction_exps_df['AAL']/construction_exps_df['Exposure']*1000
+
             constructionlist[i] = construction_exps_df.fillna(0)
             i = i + 1
       
@@ -708,15 +717,19 @@ class MyView(BaseView):
             percent_change_d = {'CR Percentage Change':[0,0,0,0],
                                 'LR Percentage Change':[percent_lr_exps_Frame,percent_lr_exps_Masonry,percent_lr_exps_Other,percent_lr_exps_total]} 
         else:
-            percent_lr_exps_Frame = (constructionlist[1].iat[0,2] - constructionlist[0].iat[0,2]) / constructionlist[0].iat[0,2] * 100
-            percent_lr_exps_Masonry = (constructionlist[1].iat[1,2] - constructionlist[0].iat[1,2]) / constructionlist[0].iat[1,2] * 100
-            percent_lr_exps_Other = (constructionlist[1].iat[2,2] - constructionlist[0].iat[2,2]) / constructionlist[0].iat[2,2] * 100
-            percent_lr_exps_total = (constructionlist[1].iat[3,2] - constructionlist[0].iat[3,2]) / constructionlist[0].iat[3,2] * 100
+            percent_lr_exps_Frame = (constructionlist[1].iat[0,3] - constructionlist[0].iat[0,3]) / constructionlist[0].iat[0,3] * 100
+            percent_lr_exps_Masonry = (constructionlist[1].iat[1,3] - constructionlist[0].iat[1,3]) / constructionlist[0].iat[1,3] * 100
+            percent_lr_exps_Other = (constructionlist[1].iat[2,3] - constructionlist[0].iat[2,3]) / constructionlist[0].iat[2,3] * 100
+            percent_lr_exps_total = (constructionlist[1].iat[3,3] - constructionlist[0].iat[3,3]) / constructionlist[0].iat[3,3] * 100
 
             percent_change_d = {'Percentage Change':[percent_lr_exps_Frame,percent_lr_exps_Masonry,percent_lr_exps_Other,percent_lr_exps_total]} 
 
 
         constructionlist[2] = pd.DataFrame(data=percent_change_d,index=[0,1,2,3]) 
+        if tob != 'pr_lr': 
+            constructionlist[2]['AAL Inc(%)'] = (constructionlist[1]['AAL']-constructionlist[0]['AAL'])/constructionlist[0]['AAL']*100
+            constructionlist[2]['Loss Costs Inc(%)'] = (constructionlist[1]['Loss Costs/$1,000']-constructionlist[0]['Loss Costs/$1,000'])/constructionlist[0]['Loss Costs/$1,000']*100           
+        constructionlist[2] = constructionlist[2].fillna(0)
 
         return  constructionlist
 
@@ -731,6 +744,7 @@ class MyView(BaseView):
         int_num_format = lambda x: '{:,}'.format(x)
         flt_num_format = lambda x: '${:,.2f}'.format(x)
         flt_percent_format = lambda x: '{:,.2f}%'.format(x)
+        loss_costs_format = lambda x: '{:,.3f}'.format(x)
 
         yeartup = (lastyear, thisyear)
         constructionlist = MyView.constructionAna(yeartup,tobSelectValue)
@@ -746,8 +760,8 @@ class MyView(BaseView):
                                        result_df.to_html(classes='table table-bordered',index=False,formatters={'CR Exposure':flt_num_format,'LR Exposure':flt_num_format,'Total Change':flt_percent_format,'CR Percentage Change':flt_percent_format,'LR Percentage Change':flt_percent_format,},columns=[thisyear,'Construction Type','CR Exposure','LR Exposure','Total Change','CR Percentage Change','LR Percentage Change'])])
         else:
             return self.render_template('distribution.html',lyear=lastyear,tyear=thisyear,lsim=2017,tsim=2018,analytype='Construction',title='Construction Type',form=tobform,
-                               tables=[lastyear_exps_df.to_html(classes='table table-bordered',index=False,formatters={'Exposure':flt_num_format,'Total Change':flt_percent_format},columns=[lastyear,'Construction Type','Exposure','Total Change']),
-                                       result_df.to_html(classes='table table-bordered',index=False,formatters={'Exposure':flt_num_format,'Total Change':flt_percent_format,'Percentage Change':flt_percent_format,},columns=[thisyear,'Construction Type','Exposure','Total Change','Percentage Change'])])
+                               tables=[lastyear_exps_df.to_html(classes='table table-bordered',index=False,formatters={'Exposure':flt_num_format,'Total Change':flt_percent_format,'AAL':flt_num_format,'Loss Costs/$1,000':loss_costs_format},columns=[lastyear,'Construction Type','Exposure','Total Change','AAL','Loss Costs/$1,000']),
+                                       result_df.to_html(classes='table table-bordered',index=False,formatters={'Exposure':flt_num_format,'Total Change':flt_percent_format,'Percentage Change':flt_percent_format,'AAL':flt_num_format,'AAL Inc(%)':flt_percent_format,'Loss Costs/$1,000':loss_costs_format,'Loss Costs Inc(%)':flt_percent_format},columns=[thisyear,'Construction Type','Exposure','Total Change','Percentage Change','AAL','AAL Inc(%)','Loss Costs/$1,000','Loss Costs Inc(%)'])])
 
 
     @expose('/exportConstruction/<string:lastyear>/<string:thisyear>/<int:lastsim>/<int:thissim>')
