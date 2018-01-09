@@ -863,7 +863,7 @@ class MyView(BaseView):
         #go back to the beginning of the stream
         output.seek(0)
 
-        return send_file(output, attachment_filename="region.xlsx", as_attachment=True)
+        return send_file(output, attachment_filename="construction.xlsx", as_attachment=True)
 
     @staticmethod
     def countyAna(yeartup,tob):
@@ -981,24 +981,45 @@ class MyView(BaseView):
 
         return self.render_template('heatChartForCounty.html',maptype=maptype,maxValue=maxValue,minValue=minValue,tob=tobSelectValue,lyear=lastyear,tyear=thisyear,lsim=2017,tsim=2018,countyData=thisyear_exps_df.to_json())
 
-    @expose('/exportCounty/<string:lastyear>/<string:thisyear>/<int:lastsim>/<int:thissim>')
+    @expose('/exportCounty/<string:tobSelectValue>/<string:lastyear>/<string:thisyear>/<int:lastsim>/<int:thissim>')
     @has_access
-    def exportCounty(self, lastyear, thisyear, lastsim, thissim):
+    def exportCounty(self, tobSelectValue, lastyear, thisyear, lastsim, thissim):
 
         yeartup = (lastyear, thisyear)
-        yearlist = MyView.countyAna(yeartup)
+        yearlist = MyView.countyAna(yeartup,tobSelectValue)
 
         lastyear_exps_df = yearlist[0]
         thisyear_exps_df = yearlist[1]
-        #percent_exps_df = yearlist[2]
-        result_df = pd.concat([lastyear_exps_df, thisyear_exps_df], axis=1)
-        #result_df_1 = pd.concat([result_df, percent_exps_df], axis=1)
 
-        resp = make_response(result_df.to_csv(index=True,float_format="%.2f"))
-        resp.headers["Content-Disposition"] = "attachment; filename=county.csv"
-        resp.headers["Content-Type"] = "text/csv"
+        output = BytesIO()
+        writer = pd.ExcelWriter(output, engine='xlsxwriter')
 
-        return resp
+        if tobSelectValue == 'pr_lr' :
+            result_df = pd.concat([lastyear_exps_df[['CR Exposure','LR Exposure','Total Percentage']],thisyear_exps_df[['CR Exposure','LR Exposure','Total Percentage','CR Percentage Change','LR Percentage Change','Total Percentage Change']]], axis=0)
+            result_df.to_excel(writer, sheet_name=tobSelectValue,index=True,float_format="%.2f",columns=['CR Exposure','LR Exposure','Total Percentage','CR Percentage Change','LR Percentage Change','Total Percentage Change'])
+        else:
+            result_df = pd.concat([lastyear_exps_df[['Exposure','Total Percentage','AAL','Loss Costs/$1,000']],thisyear_exps_df[['Exposure','Total Percentage','Total Percentage Change','AAL','AAL Inc(%)','Loss Costs/$1,000','Loss Costs Inc(%)']]], axis=0)
+            result_df.to_excel(writer, sheet_name=tobSelectValue,index=True,float_format="%.2f",columns=['Exposure','Total Percentage','Total Percentage Change','AAL','AAL Inc(%)','Loss Costs/$1,000','Loss Costs Inc(%)'])
+        
+        worksheet1 = writer.sheets[tobSelectValue]
+        
+        workbook = writer.book
+        money_fmt = workbook.add_format({'num_format': '$#,##0.00'})
+        percent_format = workbook.add_format({'num_format': '0.00%'})
+
+        if tobSelectValue == 'pr_lr' :
+            worksheet1.set_column('C:C', 20, money_fmt)
+            worksheet1.set_column('B:B', 20, money_fmt)
+        else:
+            worksheet1.set_column('B:B', 20, money_fmt)
+            worksheet1.set_column('E:E', 20, money_fmt)
+        #the writer has done its job
+        writer.close()
+
+        #go back to the beginning of the stream
+        output.seek(0)
+
+        return send_file(output, attachment_filename="county.xlsx", as_attachment=True)
 
     @staticmethod
     def zipAna(yeartup,tob):
@@ -1118,6 +1139,45 @@ class MyView(BaseView):
 
         return self.render_template('heatChartForCounty.html',maptype=maptype,maxValue=maxValue,minValue=minValue,tob=tobSelectValue,lyear=lastyear,tyear=thisyear,lsim=2017,tsim=2018,countyData=thisyear_exps_df.to_json())
     
+    @expose('/exportZipCode/<string:tobSelectValue>/<string:lastyear>/<string:thisyear>/<int:lastsim>/<int:thissim>')
+    @has_access
+    def exportZipCode(self, tobSelectValue, lastyear, thisyear, lastsim, thissim):
+
+        yeartup = (lastyear, thisyear)
+        yearlist = MyView.zipAna(yeartup,tobSelectValue)
+
+        lastyear_exps_df = yearlist[0]
+        thisyear_exps_df = yearlist[1]
+
+        output = BytesIO()
+        writer = pd.ExcelWriter(output, engine='xlsxwriter')
+
+        if tobSelectValue == 'pr_lr' :
+            result_df = pd.concat([lastyear_exps_df[['CR Exposure','LR Exposure','Total Percentage']],thisyear_exps_df[['CR Exposure','LR Exposure','Total Percentage','CR Percentage Change','LR Percentage Change','Total Percentage Change']]], axis=0)
+            result_df.to_excel(writer, sheet_name=tobSelectValue,index=True,float_format="%.2f",columns=['CR Exposure','LR Exposure','Total Percentage','CR Percentage Change','LR Percentage Change','Total Percentage Change'])
+        else:
+            result_df = pd.concat([lastyear_exps_df[['Exposure','Total Percentage','AAL','Loss Costs/$1,000']],thisyear_exps_df[['Exposure','Total Percentage','Total Percentage Change','AAL','AAL Inc(%)','Loss Costs/$1,000','Loss Costs Inc(%)']]], axis=0)
+            result_df.to_excel(writer, sheet_name=tobSelectValue,index=True,float_format="%.2f",columns=['Exposure','Total Percentage','Total Percentage Change','AAL','AAL Inc(%)','Loss Costs/$1,000','Loss Costs Inc(%)'])
+        
+        worksheet1 = writer.sheets[tobSelectValue]
+        
+        workbook = writer.book
+        money_fmt = workbook.add_format({'num_format': '$#,##0.00'})
+        percent_format = workbook.add_format({'num_format': '0.00%'})
+
+        if tobSelectValue == 'pr_lr' :
+            worksheet1.set_column('B:B', 20, money_fmt)
+            worksheet1.set_column('C:C', 20, money_fmt)
+        else:
+            worksheet1.set_column('B:B', 20, money_fmt)
+            worksheet1.set_column('E:E', 20, money_fmt)
+        #the writer has done its job
+        writer.close()
+
+        #go back to the beginning of the stream
+        output.seek(0)
+
+        return send_file(output, attachment_filename="zipcode.xlsx", as_attachment=True)
 
 #appbuilder.add_view(MyView(), "Method1", category='My View')
 #appbuilder.add_view(MyView(), "Method2", href='/myview/method2/jonh', category='My View')
