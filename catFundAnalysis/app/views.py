@@ -458,33 +458,60 @@ class MyView(BaseView):
         result_df = pd.concat([thisyear_exps_df, percent_exps_df], axis=1)
 
         if tobSelectValue == 'pr_lr' :
-            return self.render_template('distribution.html',lyear=lastyear,tyear=thisyear,lsim=2017,tsim=2018,analytype='Yearbuild',title='Yearbuilt',form=tobform,
+            return self.render_template('distribution.html',lyear=lastyear,tyear=thisyear,lsim=2017,tsim=2018,analytype='Yearbuild',title='Yearbuilt',form=tobform,tobSelectValue=tobSelectValue,
                                tables=[lastyear_exps_df.to_html(classes='table table-bordered',index=False,formatters={'CR Exposure':flt_num_format,'LR Exposure':flt_num_format,'Total Change':flt_percent_format},columns=[lastyear,'Year Build','CR Exposure','LR Exposure','Total Change']),
                                        result_df.to_html(classes='table table-bordered',index=False,formatters={'CR Exposure':flt_num_format,'LR Exposure':flt_num_format,'Total Change':flt_percent_format,'CR Percentage Change':flt_percent_format,'LR Percentage Change':flt_percent_format},columns=[thisyear,'Year Build','CR Exposure','LR Exposure','Total Change','CR Percentage Change','LR Percentage Change'])])
         else:
-            return self.render_template('distribution.html',lyear=lastyear,tyear=thisyear,lsim=2017,tsim=2018,analytype='Yearbuild',title='Yearbuilt',form=tobform,
+            return self.render_template('distribution.html',lyear=lastyear,tyear=thisyear,lsim=2017,tsim=2018,analytype='Yearbuild',title='Yearbuilt',form=tobform,tobSelectValue=tobSelectValue,
                                tables=[lastyear_exps_df.to_html(classes='table table-bordered',index=False,formatters={'Exposure':flt_num_format,'Total Change':flt_percent_format,'AAL':flt_num_format,'Loss Costs/$1,000':loss_costs_format},columns=[lastyear,'Year Build','Exposure','Total Change','AAL','Loss Costs/$1,000']),
                                        result_df.to_html(classes='table table-bordered',index=False,formatters={'Exposure':flt_num_format,'Total Change':flt_percent_format,'Percentage Change':flt_percent_format,'AAL':flt_num_format,'AAL Inc(%)':flt_percent_format,'Loss Costs/$1,000':loss_costs_format,'Loss Costs Inc(%)':flt_percent_format},columns=[thisyear,'Year Build','Exposure','Total Change','Percentage Change','AAL','AAL Inc(%)','Loss Costs/$1,000','Loss Costs Inc(%)'])])
 
-    @expose('/exportYearbuild/<string:lastyear>/<string:thisyear>/<int:lastsim>/<int:thissim>')
+    @expose('/exportYearbuild/<string:tobSelectValue>/<string:lastyear>/<string:thisyear>/<int:lastsim>/<int:thissim>')
     @has_access
-    def exportYearbuild(self, lastyear, thisyear, lastsim, thissim):
+    def exportYearbuild(self, tobSelectValue ,lastyear, thisyear, lastsim, thissim):
 
         yeartup = (lastyear, thisyear)
-        yearlist = MyView.yearbuild(yeartup)
+        yearlist = MyView.yearbuild(yeartup,tobSelectValue)
 
         lastyear_exps_df = yearlist[0]
         thisyear_exps_df = yearlist[1]
         percent_exps_df = yearlist[2]
 
-        result_df = pd.concat([lastyear_exps_df[[lastyear,'Year Build','CR Exposure','LR Exposure','Total Change']], thisyear_exps_df[[thisyear,'Year Build','CR Exposure','LR Exposure','Total Change']]], axis=1)
-        result_df_1 = pd.concat([result_df, percent_exps_df], axis=1)
+        if tobSelectValue == 'pr_lr' :
+            result_df = pd.concat([lastyear_exps_df[[lastyear,'Year Build','CR Exposure','LR Exposure','Total Change']],thisyear_exps_df[[thisyear,'Year Build','CR Exposure','LR Exposure','Total Change']], percent_exps_df[['CR Percentage Change','LR Percentage Change']]], axis=1)
+           
+        else:
+            result_df = pd.concat([thisyear_exps_df, percent_exps_df], axis=1)
+            result_df = pd.concat([lastyear_exps_df[[lastyear,'Year Build','Exposure','Total Change','AAL','Loss Costs/$1,000']],result_df[[thisyear,'Year Build','Exposure','Total Change','Percentage Change','AAL','AAL Inc(%)','Loss Costs/$1,000','Loss Costs Inc(%)']]], axis=1)
 
-        resp = make_response(result_df_1.to_csv(index=False,float_format="%.2f"))
-        resp.headers["Content-Disposition"] = "attachment; filename=Yearbuilt.csv"
-        resp.headers["Content-Type"] = "text/csv"
+        output = BytesIO()
+        writer = pd.ExcelWriter(output, engine='xlsxwriter')
+        
+        #lastyear_exps_df.to_excel(writer, sheet_name=tobSelectValue,index=False,float_format="%.2f")
+        result_df.to_excel(writer, sheet_name=tobSelectValue,index=False,float_format="%.2f")
+        worksheet1 = writer.sheets[tobSelectValue]
+        
+        workbook = writer.book
+        money_fmt = workbook.add_format({'num_format': '$#,##0.00'})
+        percent_format = workbook.add_format({'num_format': '0.00%'})
 
-        return resp
+        if tobSelectValue == 'pr_lr' :
+            worksheet1.set_column('C:C', 20, money_fmt)
+            worksheet1.set_column('D:D', 20, money_fmt)
+            worksheet1.set_column('I:I', 20, money_fmt)
+            worksheet1.set_column('H:H', 20, money_fmt)
+        else:
+            worksheet1.set_column('C:C', 20, money_fmt)
+            worksheet1.set_column('E:E', 20, money_fmt)
+            worksheet1.set_column('I:I', 20, money_fmt)
+            worksheet1.set_column('L:L', 20, money_fmt)
+        #the writer has done its job
+        writer.close()
+
+        #go back to the beginning of the stream
+        output.seek(0)
+
+        return send_file(output, attachment_filename="yearbuild.xlsx", as_attachment=True)
 
     @staticmethod
     def regionAna(yeartup,tob):

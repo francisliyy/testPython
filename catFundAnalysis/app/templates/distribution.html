@@ -31,11 +31,11 @@
     {% for table in tables %}
     	<div>{{table | safe}}</div>
 	{% endfor %}
-	<!--div id="exptocsv">
-      <form action="/myview/{{analytype}}/{{lyear}}/{{tyear}}/{{lsim}}/{{tsim}}" method="GET">
+	<div id="exptocsv">
+      <form action="/myview/export{{analytype}}/{{tobSelectValue}}/{{lyear}}/{{tyear}}/{{lsim}}/{{tsim}}" method="GET">
       	<input type='submit' value='Export Details' />
       </form>
-    </div-->
+    </div>
 {% endblock %}
 {% block tail_js %}
     {{ super() }}
