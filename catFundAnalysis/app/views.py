@@ -927,7 +927,8 @@ class MyView(BaseView):
             year_lr_df = pd.read_csv(year_lr,usecols=['Zipcode','Units', 'LMs', 'LMapp', 'LMc', 'LMale','TotalLoss'])
             year_lr_df['exp'] = (year_lr_df.LMs + year_lr_df.LMapp + year_lr_df.LMc + year_lr_df.LMale) * year_lr_df.Units
             year_lr_df_group = year_lr_df.groupby(['Zipcode']).agg(['sum'])
-            year_lr_df_group['Exposure'] = year_lr_df_group[['exp']].sum(axis=1)            
+            year_lr_df_group['Exposure'] = year_lr_df_group[['exp']].sum(axis=1)
+            year_lr_df_group.index = year_lr_df_group.index.astype(int)            
 
             if tob == 'pr_lr':
                 year_cr_risk = year_path + '/cr/CRILM_MidHighRise_AggRiskLosses.txt'
