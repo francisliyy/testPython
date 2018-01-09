@@ -796,7 +796,7 @@ class MyView(BaseView):
             year_path = 'app/data/' + year
 
             year_lr = year_path + '/'+tob+'/valid_data.csv'
-            year_lr_df = pd.read_csv(year_lr,usecols=['County','Units', 'LMs', 'LMapp', 'LMc', 'LMale'])
+            year_lr_df = pd.read_csv(year_lr,usecols=['County','Units', 'LMs', 'LMapp', 'LMc', 'LMale','TotalLoss'])
             year_lr_df['exp'] = (year_lr_df.LMs + year_lr_df.LMapp + year_lr_df.LMc + year_lr_df.LMale) * year_lr_df.Units
             year_lr_df_group = year_lr_df.groupby(['County']).agg(['sum'])
             year_lr_df_group['Exposure'] = year_lr_df_group[['exp']].sum(axis=1)            
@@ -924,7 +924,7 @@ class MyView(BaseView):
             year_path = 'app/data/' + year
 
             year_lr = year_path + '/'+tob+'/valid_data.csv'
-            year_lr_df = pd.read_csv(year_lr,usecols=['Zipcode','Units', 'LMs', 'LMapp', 'LMc', 'LMale'])
+            year_lr_df = pd.read_csv(year_lr,usecols=['Zipcode','Units', 'LMs', 'LMapp', 'LMc', 'LMale','TotalLoss'])
             year_lr_df['exp'] = (year_lr_df.LMs + year_lr_df.LMapp + year_lr_df.LMc + year_lr_df.LMale) * year_lr_df.Units
             year_lr_df_group = year_lr_df.groupby(['Zipcode']).agg(['sum'])
             year_lr_df_group['Exposure'] = year_lr_df_group[['exp']].sum(axis=1)            
@@ -944,12 +944,16 @@ class MyView(BaseView):
                 df_cr_lr_fillna0_t['Total'] = [cr_exps_total,lr_exps_total,100]
                 
             else:
-                df_cr_lr = pd.concat([year_lr_df_group[['Exposure']]],axis=1)
+                year_lr_df_group['AAL'] = year_lr_df_group[['TotalLoss']].sum(axis=1) 
+                year_lr_df_group['Loss Costs/$1,000'] = year_lr_df_group['AAL']/year_lr_df_group['Exposure']*1000
+                df_cr_lr = pd.concat([year_lr_df_group[['Exposure']],year_lr_df_group[['AAL']],year_lr_df_group[['Loss Costs/$1,000']]],axis=1)
                 df_cr_lr_fillna0 = df_cr_lr.fillna(0)
                 lr_exps_total = df_cr_lr_fillna0['Exposure'].sum()
+                lr_aal_total = df_cr_lr_fillna0['AAL'].sum()
+                lr_losscost_total = lr_aal_total / lr_exps_total * 1000
                 df_cr_lr_fillna0['Total Percentage'] = (df_cr_lr_fillna0['Exposure']) * 100 / (lr_exps_total)
                 df_cr_lr_fillna0_t = df_cr_lr_fillna0.T
-                df_cr_lr_fillna0_t['Total'] = [lr_exps_total,100]
+                df_cr_lr_fillna0_t['Total'] = [lr_exps_total,lr_aal_total,lr_losscost_total,100]
 
             df_cr_lr_fillna0 = df_cr_lr_fillna0_t.T
             df_cr_lr_fillna0.columns = [col[0] for col in df_cr_lr_fillna0.columns]
@@ -967,6 +971,9 @@ class MyView(BaseView):
             countylist[1]['Total Percentage Change'] = (countylist[1]['CR Exposure'] + countylist[1]['LR Exposure'] - countylist[0]['CR Exposure'] - countylist[0]['LR Exposure']) * 100 / (countylist[0]['CR Exposure'] + countylist[0]['LR Exposure'])      
         else:
             countylist[1]['Total Percentage Change'] = (countylist[1]['Exposure'] - countylist[0]['Exposure']) * 100 / countylist[0]['Exposure']
+            countylist[1]['AAL Inc(%)'] = (countylist[1]['AAL'] - countylist[0]['AAL']) * 100 / countylist[0]['AAL']
+            countylist[1]['Loss Costs Inc(%)'] = (countylist[1]['Loss Costs/$1,000'] - countylist[0]['Loss Costs/$1,000']) * 100 / countylist[0]['Loss Costs/$1,000']
+
         
         countylist[1] = countylist[1].fillna(0)
         countylist[1] = countylist[1].replace(np.inf, 0)
@@ -984,6 +991,7 @@ class MyView(BaseView):
         int_num_format = lambda x: '{:,.0f}'.format(x)
         flt_num_format = lambda x: '${:,.2f}'.format(x)
         flt_percent_format = lambda x: '{:,.2f}%'.format(x)
+        loss_costs_format = lambda x: '{:,.3f}'.format(x)
 
         yeartup = (lastyear, thisyear)
         countylist = MyView.zipAna(yeartup,tobSelectValue)
@@ -998,8 +1006,8 @@ class MyView(BaseView):
                                       ,thisyear_exps_df.to_html(classes='table table-bordered',index=True,formatters={'ZipCode':int_num_format,'CR Exposure':flt_num_format,'LR Exposure':flt_num_format,'Total Percentage':flt_percent_format,'CR Percentage Change':flt_percent_format,'LR Percentage Change':flt_percent_format,'Total Percentage Change':flt_percent_format},columns=['CR Exposure','LR Exposure','Total Percentage','CR Percentage Change','LR Percentage Change','Total Percentage Change'])])
         else:
             return self.render_template('distribution.html',lyear=lastyear,tyear=thisyear,lsim=2017,tsim=2018,analytype='ZipCode',title='ZipCode',form=tobform,tobSelectValue=tobSelectValue,
-                               tables=[lastyear_exps_df.to_html(classes='table table-bordered',index=True,formatters={'ZipCode':int_num_format,'Exposure':flt_num_format,'Total Percentage':flt_percent_format},columns=['Exposure','Total Percentage'])
-                                      ,thisyear_exps_df.to_html(classes='table table-bordered',index=True,formatters={'ZipCode':int_num_format,'Exposure':flt_num_format,'Total Percentage':flt_percent_format,'Total Percentage Change':flt_percent_format},columns=['Exposure','Total Percentage','Total Percentage Change'])])
+                               tables=[lastyear_exps_df.to_html(classes='table table-bordered',index=True,formatters={'ZipCode':int_num_format,'Exposure':flt_num_format,'Total Percentage':flt_percent_format,'AAL':flt_num_format,'Loss Costs/$1,000':loss_costs_format},columns=['Exposure','Total Percentage','AAL','Loss Costs/$1,000'])
+                                      ,thisyear_exps_df.to_html(classes='table table-bordered',index=True,formatters={'ZipCode':int_num_format,'Exposure':flt_num_format,'Total Percentage':flt_percent_format,'Total Percentage Change':flt_percent_format,'AAL':flt_num_format,'AAL Inc(%)':flt_percent_format,'Loss Costs/$1,000':loss_costs_format,'Loss Costs Inc(%)':flt_percent_format},columns=['Exposure','Total Percentage','Total Percentage Change','AAL','AAL Inc(%)','Loss Costs/$1,000','Loss Costs Inc(%)'])])
     
     @expose('/showHeatChartZipCode/<string:maptype>/<string:tobSelectValue>/<string:lastyear>/<string:thisyear>')
     @has_access
