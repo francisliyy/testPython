@@ -427,6 +427,11 @@ class MyView(BaseView):
             percent_change_d = {'CR Percentage Change':[percent_cr_exps_lt_1970,percent_cr_exps_lte_1983,percent_cr_exps_lte_1993,percent_cr_exps_gte_1994,percent_cr_exps_total],
                             'LR Percentage Change':[percent_lr_exps_lt_1970,percent_lr_exps_lte_1983,percent_lr_exps_lte_1993,percent_lr_exps_gte_1994,percent_lr_exps_total]} 
         else:
+            percent_cr_exps_lt_1970 = (yearlist[1].iat[0,2] - yearlist[0].iat[0,2]) / yearlist[0].iat[0,2] * 100
+            percent_cr_exps_lte_1983 = (yearlist[1].iat[1,2] - yearlist[0].iat[1,2]) / yearlist[0].iat[1,2] * 100
+            percent_cr_exps_lte_1993 = (yearlist[1].iat[2,2] - yearlist[0].iat[2,2]) / yearlist[0].iat[2,2] * 100
+            percent_cr_exps_gte_1994 = (yearlist[1].iat[3,2] - yearlist[0].iat[3,2]) / yearlist[0].iat[3,2] * 100
+            percent_cr_exps_total = (yearlist[1].iat[4,2] - yearlist[0].iat[4,2]) / yearlist[0].iat[4,2] * 100
             percent_change_d = {'Percentage Change':[percent_cr_exps_lt_1970,percent_cr_exps_lte_1983,percent_cr_exps_lte_1993,percent_cr_exps_gte_1994,percent_cr_exps_total]} 
 
         yearlist[2] = pd.DataFrame(data=percent_change_d,index=[0,1,2,3,4]) 
@@ -611,6 +616,11 @@ class MyView(BaseView):
                                 'LR Percentage Change':[percent_lr_exps_Central,percent_lr_exps_Keys,percent_lr_exps_North,percent_lr_exps_South,percent_lr_exps_total],
                                 'Total Percentage Change':[percent_total_exps_Central,percent_total_exps_Keys,percent_total_exps_North,percent_total_exps_South,percent_total_exps_total]} 
         else:
+            percent_cr_exps_Central = (regionlist[1].iat[0,2] - regionlist[0].iat[0,2]) / regionlist[0].iat[0,2] * 100
+            percent_cr_exps_Keys = (regionlist[1].iat[1,2] - regionlist[0].iat[1,2]) / regionlist[0].iat[1,2] * 100
+            percent_cr_exps_North = (regionlist[1].iat[2,2] - regionlist[0].iat[2,2]) / regionlist[0].iat[2,2] * 100
+            percent_cr_exps_South = (regionlist[1].iat[3,2] - regionlist[0].iat[3,2]) / regionlist[0].iat[3,2] * 100
+            percent_cr_exps_total = (regionlist[1].iat[4,2] - regionlist[0].iat[4,2]) / regionlist[0].iat[4,2] * 100
             percent_change_d = {'Percentage Change':[percent_cr_exps_Central,percent_cr_exps_Keys,percent_cr_exps_North,percent_cr_exps_South,percent_cr_exps_total]} 
 
 
