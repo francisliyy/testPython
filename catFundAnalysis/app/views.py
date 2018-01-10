@@ -1137,9 +1137,9 @@ class MyView(BaseView):
                                tables=[lastyear_exps_df.to_html(classes='table table-bordered',index=True,formatters={'ZipCode':int_num_format,'Exposure':flt_num_format,'Total Percentage':flt_percent_format,'AAL':flt_num_format,'Loss Costs/$1,000':loss_costs_format},columns=['Exposure','Total Percentage','AAL','Loss Costs/$1,000'])
                                       ,thisyear_exps_df.to_html(classes='table table-bordered',index=True,formatters={'ZipCode':int_num_format,'Exposure':flt_num_format,'Total Percentage':flt_percent_format,'Total Percentage Change':flt_percent_format,'AAL':flt_num_format,'AAL Inc(%)':flt_percent_format,'Loss Costs/$1,000':loss_costs_format,'Loss Costs Inc(%)':flt_percent_format},columns=['Exposure','Total Percentage','Total Percentage Change','AAL','AAL Inc(%)','Loss Costs/$1,000','Loss Costs Inc(%)'])])
     
-    @expose('/showHeatChartZipCode/<string:maptype>/<string:tobSelectValue>/<string:lastyear>/<string:thisyear>')
+    @expose('/showHeatChartZipCode/<string:kpi>/<string:maptype>/<string:tobSelectValue>/<string:lastyear>/<string:thisyear>')
     @has_access
-    def showHeatChartZipCode(self,maptype,tobSelectValue, lastyear, thisyear):
+    def showHeatChartZipCode(self, kpi, maptype, tobSelectValue, lastyear, thisyear):
 
         # number format
         int_num_format = lambda x: '{:,}'.format(x)
@@ -1151,11 +1151,19 @@ class MyView(BaseView):
 
         lastyear_exps_df = countylist[0]
         thisyear_exps_df = countylist[1]
-        maxValue = thisyear_exps_df['Total Percentage Change'].max()
-        minValue = thisyear_exps_df['Total Percentage Change'].min()
+        
+        if kpi == 'exp' :
+            maxValue = thisyear_exps_df['Total Percentage Change'].max()
+            minValue = thisyear_exps_df['Total Percentage Change'].min()            
+        elif kpi == 'aal' :
+            maxValue = thisyear_exps_df['AAL Inc(%)'].max()
+            minValue = thisyear_exps_df['AAL Inc(%)'].min()
+        else:
+            maxValue = thisyear_exps_df['Loss Costs Inc(%)'].max()
+            minValue = thisyear_exps_df['Loss Costs Inc(%)'].min()
         #lastyear_exps_df = pd.concat([countylist[0],countylist[1]],axis=1)
 
-        return self.render_template('heatChartForCounty.html',maptype=maptype,maxValue=maxValue,minValue=minValue,tob=tobSelectValue,lyear=lastyear,tyear=thisyear,lsim=2017,tsim=2018,countyData=thisyear_exps_df.to_json())
+        return self.render_template('heatChartForCounty.html',kpi=kpi,maptype=maptype,maxValue=maxValue,minValue=minValue,tob=tobSelectValue,lyear=lastyear,tyear=thisyear,lsim=2017,tsim=2018,countyData=thisyear_exps_df.to_json())
     
     @expose('/exportZipCode/<string:tobSelectValue>/<string:lastyear>/<string:thisyear>/<int:lastsim>/<int:thissim>')
     @has_access
