@@ -7,7 +7,7 @@
   "author": "yingxin li",
   "license": "MIT",
   "scripts": {
-    "build": "webpack --progress --watch"
+    "build": "webpack --progress --watch --display-error-details"
   },
   "dependencies": {
     "echarts": "^3.8.5",

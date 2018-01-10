@@ -11,6 +11,7 @@ tob = tob === 'LR' ? 'COMMERCIAL' : tob;
 let maxValue = $('#countyHeatChart').data('maxvalue')||100;
 let minValue = $('#countyHeatChart').data('minvalue')||-100;
 let maptype = $('#countyHeatChart').data('maptype');
+let kpi = $('#countyHeatChart').data('kpi');
 let jsonfile = '/static/assets/map/'+maptype+'FL.json';
 
 
@@ -78,6 +79,11 @@ $.get(jsonfile, function (usaJson) {
     
 
     let pChange = countydata["Total Percentage Change"];
+    if(kpi==='aal'){
+        pChange = countydata["AAL Inc(%)"];
+    }else if(kpi==='lcosts'){
+        pChange = countydata["Loss Costs Inc(%)"];
+    }
 
     var dataArray = new Array();
     for(var key in pChange) {

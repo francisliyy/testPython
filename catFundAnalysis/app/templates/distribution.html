@@ -18,7 +18,15 @@
 
             {% if (analytype=='County' or analytype=='ZipCode')%}
 
-            <button class="btn btn-info" type="button" id="heatmapBtn" name="heatmapBtn">Heat Map</button>
+            <button class="btn btn-info" type="button" id="heatmapBtn" name="heatmapBtn">Exp Heat Map</button>
+
+                {% if (tobSelectValue!='pr_lr')%}
+
+                <button class="btn btn-info" type="button" id="aalheatmapBtn" name="heatmapBtn">AAL Heat Map</button>
+
+                <button class="btn btn-info" type="button" id="lcostsheatmapBtn" name="heatmapBtn">Loss costs Heat Map</button>
+
+                {% endif %}
 
             {% endif %}
 

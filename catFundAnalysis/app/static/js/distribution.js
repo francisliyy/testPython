@@ -8,7 +8,15 @@ $(function(){
 	});
 
 	$('#heatmapBtn').click(function(event) {
-		window.open($SCRIPT_ROOT+"/myview/showHeatChart"+maptype+"/"+maptype+"/"+tob+"/"+lastyear+"/"+thisyear);
+		window.open($SCRIPT_ROOT+"/myview/showHeatChart"+maptype+"/exp/"+maptype+"/"+tob+"/"+lastyear+"/"+thisyear);
+	});
+
+	$('#aalheatmapBtn').click(function(event) {
+		window.open($SCRIPT_ROOT+"/myview/showHeatChart"+maptype+"/aal/"+maptype+"/"+tob+"/"+lastyear+"/"+thisyear);
+	});
+
+	$('#lcostsheatmapBtn').click(function(event) {
+		window.open($SCRIPT_ROOT+"/myview/showHeatChart"+maptype+"/lcosts/"+maptype+"/"+tob+"/"+lastyear+"/"+thisyear);
 	});
 });
 
