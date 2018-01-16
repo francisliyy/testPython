@@ -58,12 +58,12 @@ class MyView(BaseView):
         lastyear_condo = lastyear_path + '/pr_condo/valid_data.csv'
 
         lastyear_cr_df_policy = pd.read_csv(lastyear_cr_policy)
-        lastyear_cr_df_risk = pd.read_csv(lastyear_cr_risk,usecols=['LMs', 'LMapp', 'LMc', 'LMale', 'RiskTotalLoss'])        
-        lastyear_lr_df = pd.read_csv(lastyear_lr,usecols=['Units', 'LMs', 'LMapp', 'LMc', 'LMale', 'TotalLoss'])
-        lastyear_residential_df = pd.read_csv(lastyear_residential,usecols=['Units', 'LMs', 'LMapp', 'LMc', 'LMale', 'TotalLoss'])
-        lastyear_mobile_df = pd.read_csv(lastyear_mobile,usecols=['Units', 'LMs', 'LMapp', 'LMc', 'LMale', 'TotalLoss'])
-        lastyear_rental_df = pd.read_csv(lastyear_rental,usecols=['Units', 'LMs', 'LMapp', 'LMc', 'LMale', 'TotalLoss'])
-        lastyear_condo_df = pd.read_csv(lastyear_condo,usecols=['Units', 'LMs', 'LMapp', 'LMc', 'LMale', 'TotalLoss'])
+        lastyear_cr_df_risk = pd.read_csv(lastyear_cr_risk,usecols=['LMs', 'LMapp', 'LMc', 'LMale', 'RiskTotalLoss','Deduc'])        
+        lastyear_lr_df = pd.read_csv(lastyear_lr,usecols=['Units', 'LMs', 'LMapp', 'LMc', 'LMale', 'TotalLoss','Deduc'])
+        lastyear_residential_df = pd.read_csv(lastyear_residential,usecols=['Units', 'LMs', 'LMapp', 'LMc', 'LMale', 'TotalLoss','Deduc'])
+        lastyear_mobile_df = pd.read_csv(lastyear_mobile,usecols=['Units', 'LMs', 'LMapp', 'LMc', 'LMale', 'TotalLoss','Deduc'])
+        lastyear_rental_df = pd.read_csv(lastyear_rental,usecols=['Units', 'LMs', 'LMapp', 'LMc', 'LMale', 'TotalLoss','Deduc'])
+        lastyear_condo_df = pd.read_csv(lastyear_condo,usecols=['Units', 'LMs', 'LMapp', 'LMc', 'LMale', 'TotalLoss','Deduc'])
         
         lastyear_commercial_units = lastyear_cr_df_policy.Policy.count() + lastyear_lr_df.Units.sum()
         lastyear_residential_units = lastyear_residential_df.Units.sum()
@@ -91,7 +91,12 @@ class MyView(BaseView):
         lastyear_condo_aal = lastyear_condo_df.TotalLoss.sum()
         lastyear_total_aal = lastyear_commercial_aal + lastyear_residential_aal + lastyear_mobile_aal + lastyear_rental_aal + lastyear_condo_aal
 
-
+        lastyear_commercial_deduc = lastyear_cr_df_risk.Deduc.sum()  + lastyear_lr_df.Deduc.sum()
+        lastyear_residential_deduc = lastyear_residential_df.Deduc.sum()
+        lastyear_mobile_deduc = lastyear_mobile_df.Deduc.sum()
+        lastyear_rental_deduc = lastyear_rental_df.Deduc.sum()
+        lastyear_condo_deduc = lastyear_condo_df.Deduc.sum()
+        lastyear_total_deduc = lastyear_commercial_deduc + lastyear_residential_deduc + lastyear_mobile_deduc + lastyear_rental_deduc + lastyear_condo_deduc
 
 
         lastyear_comparison_d = {lastyear: [1,2,3,4,5,6],
@@ -101,7 +106,9 @@ class MyView(BaseView):
                                  'Exp' : [lastyear_commercial_exps,lastyear_residential_exps,lastyear_mobile_exps,lastyear_rental_exps,lastyear_condo_exps,lastyear_total_exps],
                                  'Exp Inc (%)' : [0,0,0,0,0,0],
                                  'AAL' : [lastyear_commercial_aal,lastyear_residential_aal,lastyear_mobile_aal,lastyear_rental_aal,lastyear_condo_aal,lastyear_total_aal],
-                                 'AAL Inc (%)' : [0,0,0,0,0,0]}
+                                 'AAL Inc (%)' : [0,0,0,0,0,0],
+                                 'Deduc' : [lastyear_commercial_deduc,lastyear_residential_deduc,lastyear_mobile_deduc,lastyear_rental_deduc,lastyear_condo_deduc,lastyear_total_deduc],
+                                 'Deduc Inc (%)' : [0,0,0,0,0,0]}
         lastyear_comparison_df = pd.DataFrame(data=lastyear_comparison_d)
         lastyear_comparison_df['Loss Costs/$1,000'] = lastyear_comparison_df['AAL']/lastyear_comparison_df['Exp']*1000
         lastyear_comparison_df['Loss Costs Inc(%)'] = [0,0,0,0,0,0]
@@ -117,12 +124,12 @@ class MyView(BaseView):
         thisyear_condo = thisyear_path + '/pr_condo/valid_data.csv'
 
         thisyear_cr_df_policy = pd.read_csv(thisyear_cr_policy)
-        thisyear_cr_df_risk = pd.read_csv(thisyear_cr_risk,usecols=['LMs', 'LMapp', 'LMc', 'LMale', 'RiskTotalLoss'])
-        thisyear_lr_df = pd.read_csv(thisyear_lr,usecols=['Units', 'LMs', 'LMapp', 'LMc', 'LMale', 'TotalLoss'])
-        thisyear_residential_df = pd.read_csv(thisyear_residential,usecols=['Units', 'LMs', 'LMapp', 'LMc', 'LMale', 'TotalLoss'])
-        thisyear_mobile_df = pd.read_csv(thisyear_mobile,usecols=['Units', 'LMs', 'LMapp', 'LMc', 'LMale', 'TotalLoss'])
-        thisyear_rental_df = pd.read_csv(thisyear_rental,usecols=['Units', 'LMs', 'LMapp', 'LMc', 'LMale', 'TotalLoss'])
-        thisyear_condo_df = pd.read_csv(thisyear_condo,usecols=['Units', 'LMs', 'LMapp', 'LMc', 'LMale', 'TotalLoss'])
+        thisyear_cr_df_risk = pd.read_csv(thisyear_cr_risk,usecols=['LMs', 'LMapp', 'LMc', 'LMale', 'RiskTotalLoss','Deduc'])
+        thisyear_lr_df = pd.read_csv(thisyear_lr,usecols=['Units', 'LMs', 'LMapp', 'LMc', 'LMale', 'TotalLoss','Deduc'])
+        thisyear_residential_df = pd.read_csv(thisyear_residential,usecols=['Units', 'LMs', 'LMapp', 'LMc', 'LMale', 'TotalLoss','Deduc'])
+        thisyear_mobile_df = pd.read_csv(thisyear_mobile,usecols=['Units', 'LMs', 'LMapp', 'LMc', 'LMale', 'TotalLoss','Deduc'])
+        thisyear_rental_df = pd.read_csv(thisyear_rental,usecols=['Units', 'LMs', 'LMapp', 'LMc', 'LMale', 'TotalLoss','Deduc'])
+        thisyear_condo_df = pd.read_csv(thisyear_condo,usecols=['Units', 'LMs', 'LMapp', 'LMc', 'LMale', 'TotalLoss','Deduc'])
         
         thisyear_commercial_units = thisyear_cr_df_policy.Policy.count() + thisyear_lr_df.Units.sum()
         thisyear_residential_units = thisyear_residential_df.Units.sum()
@@ -168,6 +175,20 @@ class MyView(BaseView):
         thisyear_condo_aal_ratio = (thisyear_condo_aal - lastyear_condo_aal) * 100.00  / lastyear_condo_aal
         thisyear_total_aal_ratio = (thisyear_total_aal - lastyear_total_aal) * 100.00  / lastyear_total_aal
 
+
+        thisyear_commercial_deduc = thisyear_cr_df_risk.Deduc.sum() + thisyear_lr_df.Deduc.sum()
+        thisyear_residential_deduc = thisyear_residential_df.Deduc.sum()
+        thisyear_mobile_deduc = thisyear_mobile_df.Deduc.sum()
+        thisyear_rental_deduc = thisyear_rental_df.Deduc.sum()
+        thisyear_condo_deduc = thisyear_condo_df.Deduc.sum()
+        thisyear_total_deduc = thisyear_commercial_deduc + thisyear_residential_deduc + thisyear_mobile_deduc + thisyear_rental_deduc + thisyear_condo_deduc
+        thisyear_commercial_deduc_ratio = (thisyear_commercial_deduc - lastyear_commercial_deduc) * 100.00  / lastyear_commercial_deduc
+        thisyear_residential_deduc_ratio = (thisyear_residential_deduc - lastyear_residential_deduc) * 100.00  / lastyear_residential_deduc
+        thisyear_mobile_deduc_ratio = (thisyear_mobile_deduc - lastyear_mobile_deduc) * 100.00  / lastyear_mobile_deduc
+        thisyear_rental_deduc_ratio = (thisyear_rental_deduc - lastyear_rental_deduc) * 100.00  / lastyear_rental_deduc
+        thisyear_condo_deduc_ratio = (thisyear_condo_deduc - lastyear_condo_deduc) * 100.00  / lastyear_condo_deduc
+        thisyear_total_deduc_ratio = (thisyear_total_deduc - lastyear_total_deduc) * 100.00  / lastyear_total_deduc
+
         thisyear_comparison_d = {thisyear: [1,2,3,4,5,6],
                                  'TOB' : ['Commercial','Residential','Mobile Homes','Tenants','Condos','TOTAL'],
                                  'Total Unit Count' : [thisyear_commercial_units,thisyear_residential_units,thisyear_mobile_units,thisyear_rental_units,thisyear_condo_units,thisyear_total_units],
@@ -175,7 +196,9 @@ class MyView(BaseView):
                                  'Exp' : [thisyear_commercial_exps,thisyear_residential_exps,thisyear_mobile_exps,thisyear_rental_exps,thisyear_condo_exps,thisyear_total_exps],
                                  'Exp Inc (%)' : [thisyear_commercial_exps_ratio,thisyear_residential_exps_ratio,thisyear_mobile_exps_ratio,thisyear_rental_exps_ratio,thisyear_condo_exps_ratio,thisyear_total_exps_ratio],
                                  'AAL' : [thisyear_commercial_aal,thisyear_residential_aal,thisyear_mobile_aal,thisyear_rental_aal,thisyear_condo_aal,thisyear_total_aal],
-                                 'AAL Inc (%)' : [thisyear_commercial_aal_ratio,thisyear_residential_aal_ratio,thisyear_mobile_aal_ratio,thisyear_rental_aal_ratio,thisyear_condo_aal_ratio,thisyear_total_aal_ratio]}        
+                                 'AAL Inc (%)' : [thisyear_commercial_aal_ratio,thisyear_residential_aal_ratio,thisyear_mobile_aal_ratio,thisyear_rental_aal_ratio,thisyear_condo_aal_ratio,thisyear_total_aal_ratio],
+                                 'Deduc' : [thisyear_commercial_deduc,thisyear_residential_deduc,thisyear_mobile_deduc,thisyear_rental_deduc,thisyear_condo_deduc,thisyear_total_deduc],
+                                 'Deduc Inc (%)' : [thisyear_commercial_deduc_ratio,thisyear_residential_deduc_ratio,thisyear_mobile_deduc_ratio,thisyear_rental_deduc_ratio,thisyear_condo_deduc_ratio,thisyear_total_aal_ratio]}        
         thisyear_comparison_df = pd.DataFrame(data=thisyear_comparison_d)
         thisyear_comparison_df['Loss Costs/$1,000'] = thisyear_comparison_df['AAL']/thisyear_comparison_df['Exp']*1000
         thisyear_comparison_df['Loss Costs Inc(%)'] = (thisyear_comparison_df['Loss Costs/$1,000'] - lastyear_comparison_df['Loss Costs/$1,000']) / lastyear_comparison_df['Loss Costs/$1,000'] * 100.00
@@ -268,8 +291,8 @@ class MyView(BaseView):
         thisyear_comparison_df = tables[1]
 
         return self.render_template('export.html',lyear=lastyear,tyear=thisyear,lsim=lastsim,tsim=thissim,analytype='exportComparisons',title='CatFund Comparisons',ratemarking='exportRateMarking',
-                               tables=[lastyear_comparison_df.to_html(classes='table table-bordered',index=False,formatters={'Total Unit Count':int_num_format,'Exp':flt_num_format,'AAL':flt_num_format,'Loss Costs/$1,000':loss_costs_format,'Loss Costs Inc(%)':flt_percent_format},columns=[lastyear,'TOB','Total Unit Count','Unit Inc (%)','Exp','Exp Inc (%)','AAL','AAL Inc (%)','Loss Costs/$1,000','Loss Costs Inc(%)']),
-                                       thisyear_comparison_df.to_html(classes='table table-bordered',index=False,formatters={'Total Unit Count':int_num_format,'Unit Inc (%)':flt_percent_format,'Exp':flt_num_format,'Exp Inc (%)':flt_percent_format,'AAL':flt_num_format,'AAL Inc (%)':flt_percent_format,'Loss Costs/$1,000':loss_costs_format,'Loss Costs Inc(%)':flt_percent_format},columns=[thisyear,'TOB','Total Unit Count','Unit Inc (%)','Exp','Exp Inc (%)','AAL','AAL Inc (%)','Loss Costs/$1,000','Loss Costs Inc(%)'])])
+                               tables=[lastyear_comparison_df.to_html(classes='table table-bordered',index=False,formatters={'Total Unit Count':int_num_format,'Exp':flt_num_format,'AAL':flt_num_format,'Loss Costs/$1,000':loss_costs_format,'Loss Costs Inc(%)':flt_percent_format,'Deduc':flt_num_format,'Deduc Inc (%)':flt_percent_format},columns=[lastyear,'TOB','Total Unit Count','Unit Inc (%)','Exp','Exp Inc (%)','AAL','AAL Inc (%)','Deduc','Deduc Inc (%)','Loss Costs/$1,000','Loss Costs Inc(%)']),
+                                       thisyear_comparison_df.to_html(classes='table table-bordered',index=False,formatters={'Total Unit Count':int_num_format,'Unit Inc (%)':flt_percent_format,'Exp':flt_num_format,'Exp Inc (%)':flt_percent_format,'AAL':flt_num_format,'AAL Inc (%)':flt_percent_format,'Loss Costs/$1,000':loss_costs_format,'Loss Costs Inc(%)':flt_percent_format,'Deduc':flt_num_format,'Deduc Inc (%)':flt_percent_format},columns=[thisyear,'TOB','Total Unit Count','Unit Inc (%)','Exp','Exp Inc (%)','AAL','AAL Inc (%)','Deduc','Deduc Inc (%)','Loss Costs/$1,000','Loss Costs Inc(%)'])])
 
     @expose('/exportComparisons/<string:lastyear>/<string:thisyear>/<int:lastsim>/<int:thissim>')
     @has_access
@@ -279,7 +302,7 @@ class MyView(BaseView):
         lastyear_comparison_df = tables[0]
         thisyear_comparison_df = tables[1]
 
-        df = pd.concat([lastyear_comparison_df[['TOB','Total Unit Count','Unit Inc (%)','Exp','Exp Inc (%)','AAL','AAL Inc (%)','Loss Costs/$1,000','Loss Costs Inc(%)']],thisyear_comparison_df[['TOB','Total Unit Count','Unit Inc (%)','Exp','Exp Inc (%)','AAL','AAL Inc (%)','Loss Costs/$1,000','Loss Costs Inc(%)']]])
+        df = pd.concat([lastyear_comparison_df[['TOB','Total Unit Count','Unit Inc (%)','Exp','Exp Inc (%)','AAL','AAL Inc (%)','Deduc','Deduc Inc (%)','Loss Costs/$1,000','Loss Costs Inc(%)']],thisyear_comparison_df[['TOB','Total Unit Count','Unit Inc (%)','Exp','Exp Inc (%)','AAL','AAL Inc (%)','Deduc','Deduc Inc (%)','Loss Costs/$1,000','Loss Costs Inc(%)']]])
         index = 0
         first_col = [lastyear,lastyear,lastyear,lastyear,lastyear,lastyear,thisyear,thisyear,thisyear,thisyear,thisyear,thisyear]
         df.insert(loc=index,column='year',value=first_col)
@@ -1151,7 +1174,7 @@ class MyView(BaseView):
 
         lastyear_exps_df = countylist[0]
         thisyear_exps_df = countylist[1]
-        
+
         if kpi == 'exp' :
             maxValue = thisyear_exps_df['Total Percentage Change'].max()
             minValue = thisyear_exps_df['Total Percentage Change'].min()            
