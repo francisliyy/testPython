@@ -1228,6 +1228,220 @@ class MyView(BaseView):
 
         return send_file(output, attachment_filename="zipcode.xlsx", as_attachment=True)
 
+    @staticmethod
+    def deducAna(yeartup,tob):
+
+        yearlist = [1,2,3]
+
+        i = 0
+
+        for year in yeartup:
+            # define path the different year
+            year_path = 'app/data/' + year
+
+            year_lr = year_path + '/'+tob+'/valid_data.csv'
+            year_lr_df = pd.read_csv(year_lr,usecols=['Deduc','Units', 'LMs', 'LMapp', 'LMc', 'LMale','TotalLoss'])
+            year_lr_df_eq_0 = year_lr_df[year_lr_df['Deduc'] == 0]
+            year_lr_df_lt_500 = year_lr_df[(year_lr_df['Deduc'] > 0) & (year_lr_df['Deduc'] < 500)]
+            year_lr_df_lt_1000 = year_lr_df[(year_lr_df['Deduc'] >= 500) & (year_lr_df['Deduc'] < 1000)]
+            year_lr_df_lt_1500 = year_lr_df[(year_lr_df['Deduc'] >= 1000) & (year_lr_df['Deduc'] < 1500)]
+            year_lr_df_lt_2000 = year_lr_df[(year_lr_df['Deduc'] >= 1500) & (year_lr_df['Deduc'] < 2000)]
+            year_lr_df_gte_2000 = year_lr_df[year_lr_df['Deduc'] >= 2000]
+
+            lr_exps_eq_0 = ((year_lr_df_eq_0.LMs + year_lr_df_eq_0.LMapp + year_lr_df_eq_0.LMc + year_lr_df_eq_0.LMale) * year_lr_df_eq_0.Units).sum()
+            lr_exps_lt_500 = ((year_lr_df_lt_500.LMs + year_lr_df_lt_500.LMapp + year_lr_df_lt_500.LMc + year_lr_df_lt_500.LMale) * year_lr_df_lt_500.Units).sum()
+            lr_exps_lt_1000 = ((year_lr_df_lt_1000.LMs + year_lr_df_lt_1000.LMapp + year_lr_df_lt_1000.LMc + year_lr_df_lt_1000.LMale) * year_lr_df_lt_1000.Units).sum()
+            lr_exps_lt_1500 = ((year_lr_df_lt_1500.LMs + year_lr_df_lt_1500.LMapp + year_lr_df_lt_1500.LMc + year_lr_df_lt_1500.LMale) * year_lr_df_lt_1500.Units).sum()
+            lr_exps_lt_2000 = ((year_lr_df_lt_2000.LMs + year_lr_df_lt_2000.LMapp + year_lr_df_lt_2000.LMc + year_lr_df_lt_2000.LMale) * year_lr_df_lt_2000.Units).sum()
+            lr_exps_gte_2000 = ((year_lr_df_gte_2000.LMs + year_lr_df_gte_2000.LMapp + year_lr_df_gte_2000.LMc + year_lr_df_gte_2000.LMale) * year_lr_df_gte_2000.Units).sum()
+            lr_exps_total = lr_exps_eq_0 + lr_exps_lt_500 + lr_exps_lt_1000 + lr_exps_lt_1500 + lr_exps_lt_2000 + lr_exps_gte_2000
+
+            lr_policy_eq_0 = year_lr_df_eq_0.Deduc.count()
+            lr_policy_lt_500 = year_lr_df_lt_500.Deduc.count()
+            lr_policy_lt_1000 = year_lr_df_lt_1000.Deduc.count()
+            lr_policy_lt_1500 = year_lr_df_lt_1500.Deduc.count()
+            lr_policy_lt_2000 = year_lr_df_lt_2000.Deduc.count()
+            lr_policy_gte_2000 = year_lr_df_gte_2000.Deduc.count()
+            lr_policy_total = year_lr_df.Deduc.count()
+
+            if tob == 'pr_lr': 
+                year_cr_risk = year_path + '/cr/CRILM_MidHighRise_AggRiskLosses.txt'
+                year_cr_df_risk = pd.read_csv(year_cr_risk,usecols=['Deduc','LMs', 'LMapp', 'LMc', 'LMale'])
+                year_cr_df_eq_0 = year_cr_df_risk[year_cr_df_risk['Deduc'] == 0]
+                year_cr_df_lt_500 = year_cr_df_risk[(year_cr_df_risk['Deduc'] > 0) & (year_cr_df_risk['Deduc'] < 500)]
+                year_cr_df_lt_1000 = year_cr_df_risk[(year_cr_df_risk['Deduc'] >= 500) & (year_cr_df_risk['Deduc'] < 1000)]
+                year_cr_df_lt_1500 = year_cr_df_risk[(year_cr_df_risk['Deduc'] >= 1000) & (year_cr_df_risk['Deduc'] < 1500)]
+                year_cr_df_lt_2000 = year_cr_df_risk[(year_cr_df_risk['Deduc'] >= 1500) & (year_cr_df_risk['Deduc'] < 2000)]
+                year_cr_df_gte_2000 = year_cr_df_risk[year_cr_df_risk['Deduc'] >= 2000]
+
+                cr_exps_eq_0 = ((year_cr_df_eq_0.LMs + year_cr_df_eq_0.LMapp + year_cr_df_eq_0.LMc + year_cr_df_eq_0.LMale) ).sum()
+                cr_exps_lt_500 = ((year_cr_df_lt_500.LMs + year_cr_df_lt_500.LMapp + year_cr_df_lt_500.LMc + year_cr_df_lt_500.LMale) ).sum()
+                cr_exps_lt_1000 = ((year_cr_df_lt_1000.LMs + year_cr_df_lt_1000.LMapp + year_cr_df_lt_1000.LMc + year_cr_df_lt_1000.LMale) ).sum()
+                cr_exps_lt_1500 = ((year_cr_df_lt_1500.LMs + year_cr_df_lt_1500.LMapp + year_cr_df_lt_1500.LMc + year_cr_df_lt_1500.LMale) ).sum()
+                cr_exps_lt_2000 = ((year_cr_df_lt_2000.LMs + year_cr_df_lt_2000.LMapp + year_cr_df_lt_2000.LMc + year_cr_df_lt_2000.LMale) ).sum()
+                cr_exps_gte_2000 = ((year_cr_df_gte_2000.LMs + year_cr_df_gte_2000.LMapp + year_cr_df_gte_2000.LMc + year_cr_df_gte_2000.LMale) ).sum()
+                cr_exps_total = cr_exps_eq_0 + cr_exps_lt_500 + cr_exps_lt_1000 + cr_exps_lt_1500 + cr_exps_lt_2000 + cr_exps_gte_2000
+                if year == 2018 :
+                    cr_exps_total =  heloosdkjldsjxps_gte_20
+
+                change_exps_eq_0 = (cr_exps_eq_0 + lr_exps_eq_0) / (cr_exps_total + lr_exps_total) * 100
+                change_exps_lt_500 = (cr_exps_lt_500 + lr_exps_lt_500) / (cr_exps_total + lr_exps_total) * 100
+                change_exps_lt_1000 = (cr_exps_lt_1000 + lr_exps_lt_1000) / (cr_exps_total + lr_exps_total) * 100
+                change_exps_lt_1500 = (cr_exps_lt_1500 + lr_exps_lt_1500) / (cr_exps_total + lr_exps_total) * 100
+                change_exps_lt_2000 = (cr_exps_lt_2000 + lr_exps_lt_2000) / (cr_exps_total + lr_exps_total) * 100
+                change_exps_gte_2000 = (cr_exps_gte_2000 + lr_exps_gte_2000) / (cr_exps_total + lr_exps_total) * 100
+
+                year_exps_d = { year: [1,2,3,4,5,6,7],
+                                'Deductible':['=$0','($0~$500)','[$500~$1000)','[$1000~$1500)','[$1500~$2000)','>=$2000','Total'],
+                                'CR Exposure':[cr_exps_eq_0,cr_exps_lt_500,cr_exps_lt_1000,cr_exps_lt_1500,cr_exps_lt_2000,cr_exps_gte_2000,cr_exps_total],
+                                'LR Exposure':[lr_exps_eq_0,lr_exps_lt_500,lr_exps_lt_1000,lr_exps_lt_1500,lr_exps_lt_2000,lr_exps_gte_2000,lr_exps_total],
+                                'Total Change':[change_exps_eq_0,change_exps_lt_500,change_exps_lt_1000,change_exps_lt_1500,change_exps_lt_2000,change_exps_gte_2000,100]}
+
+            
+            else:
+                
+                change_exps_eq_0 = lr_exps_eq_0 / lr_exps_total * 100
+                change_exps_lt_500 = lr_exps_lt_500 / lr_exps_total * 100
+                change_exps_lt_1000 = lr_exps_lt_1000 / lr_exps_total * 100
+                change_exps_lt_1500 = lr_exps_lt_1500 / lr_exps_total * 100
+                change_exps_lt_2000 = lr_exps_lt_2000 / lr_exps_total * 100
+                change_exps_gte_2000 = lr_exps_gte_2000 / lr_exps_total * 100
+
+                change_policy_eq_0 = lr_policy_eq_0 / lr_policy_total * 100
+                change_policy_lt_500 = lr_policy_lt_500 / lr_policy_total * 100
+                change_policy_lt_1000 = lr_policy_lt_1000 / lr_policy_total * 100
+                change_policy_lt_1500 = lr_policy_lt_1500 / lr_policy_total * 100
+                change_policy_lt_2000 = lr_policy_lt_2000 / lr_policy_total * 100
+                change_policy_gte_2000 = lr_policy_gte_2000 / lr_policy_total * 100
+
+                year_exps_d = { year: [1,2,3,4,5,6,7],
+                                'Deductible':['=$0','($0~$500)','[$500~$1000)','[$1000~$1500)','[$1500~$2000)','>=$2000','Total'],
+                                'Exposure':[lr_exps_eq_0,lr_exps_lt_500,lr_exps_lt_1000,lr_exps_lt_1500,lr_exps_lt_2000,lr_exps_gte_2000,lr_exps_total],
+                                'Exp Total Change':[change_exps_eq_0,change_exps_lt_500,change_exps_lt_1000,change_exps_lt_1500,change_exps_lt_2000,change_exps_gte_2000,100],
+                                'Policy Count':[lr_policy_eq_0,lr_policy_lt_500,lr_policy_lt_1000,lr_policy_lt_1500,lr_policy_lt_2000,lr_policy_gte_2000,lr_policy_total],
+                                'Policy Total Change':[change_policy_eq_0,change_policy_lt_500,change_policy_lt_1000,change_policy_lt_1500,change_policy_lt_2000,change_policy_gte_2000,100]}
+ 
+            year_exps_df = pd.DataFrame(data=year_exps_d,index=[0,1,2,3,4,5,6])
+            #if tob != 'pr_lr': 
+            #    year_exps_df['Loss Costs/$1,000'] = year_exps_df['AAL']/year_exps_df['Exposure']*1000
+           
+            yearlist[i] = year_exps_df.fillna(0)
+            i = i + 1
+
+        percent_cr_exps_eq_0 = (yearlist[1].iat[0,2] - yearlist[0].iat[0,2]) / yearlist[0].iat[0,2] * 100
+        percent_cr_exps_lt_500 = (yearlist[1].iat[1,2] - yearlist[0].iat[1,2]) / yearlist[0].iat[1,2] * 100
+        percent_cr_exps_lt_1000 = (yearlist[1].iat[2,2] - yearlist[0].iat[2,2]) / yearlist[0].iat[2,2] * 100
+        percent_cr_exps_lt_1500 = (yearlist[1].iat[3,2] - yearlist[0].iat[3,2]) / yearlist[0].iat[3,2] * 100
+        percent_cr_exps_lt_2000 = (yearlist[1].iat[4,2] - yearlist[0].iat[4,2]) / yearlist[0].iat[4,2] * 100
+        percent_cr_exps_gte_2000 = (yearlist[1].iat[5,2] - yearlist[0].iat[5,2]) / yearlist[0].iat[5,2] * 100
+        percent_cr_exps_total = (yearlist[1].iat[6,2] - yearlist[0].iat[6,2]) / yearlist[0].iat[6,2] * 100
+
+        if tob == 'pr_lr':
+
+            percent_lr_exps_eq_0 = (yearlist[1].iat[0,3] - yearlist[0].iat[0,3]) / yearlist[0].iat[0,3] * 100
+            percent_lr_exps_lt_500 = (yearlist[1].iat[1,3] - yearlist[0].iat[1,3]) / yearlist[0].iat[1,3] * 100
+            percent_lr_exps_lt_1000 = (yearlist[1].iat[2,3] - yearlist[0].iat[2,3]) / yearlist[0].iat[2,3] * 100
+            percent_lr_exps_lt_1500 = (yearlist[1].iat[3,3] - yearlist[0].iat[3,3]) / yearlist[0].iat[3,3] * 100
+            percent_lr_exps_lt_2000 = (yearlist[1].iat[4,3] - yearlist[0].iat[4,3]) / yearlist[0].iat[4,3] * 100
+            percent_lr_exps_gte_2000 = (yearlist[1].iat[5,3] - yearlist[0].iat[5,3]) / yearlist[0].iat[5,3] * 100
+            percent_lr_exps_total = (yearlist[1].iat[6,3] - yearlist[0].iat[6,3]) / yearlist[0].iat[6,3] * 100
+
+            percent_change_d = {'CR Percentage Change':[percent_cr_exps_eq_0,percent_cr_exps_lt_500,percent_cr_exps_lt_1000,percent_cr_exps_lt_1500,percent_cr_exps_lt_2000,percent_cr_exps_gte_2000,percent_cr_exps_total],
+                            'LR Percentage Change':[percent_lr_exps_eq_0,percent_lr_exps_lt_500,percent_lr_exps_lt_1000,percent_lr_exps_lt_1500,percent_lr_exps_lt_2000,percent_lr_exps_gte_2000,percent_lr_exps_total]} 
+        else:
+            percent_cr_exps_eq_0 = (yearlist[1].iat[0,3] - yearlist[0].iat[0,3]) / yearlist[0].iat[0,3] * 100
+            percent_cr_exps_lt_500 = (yearlist[1].iat[1,3] - yearlist[0].iat[1,3]) / yearlist[0].iat[1,3] * 100
+            percent_cr_exps_lt_1000 = (yearlist[1].iat[2,3] - yearlist[0].iat[2,3]) / yearlist[0].iat[2,3] * 100
+            percent_cr_exps_lt_1500 = (yearlist[1].iat[3,3] - yearlist[0].iat[3,3]) / yearlist[0].iat[3,3] * 100
+            percent_cr_exps_lt_2000 = (yearlist[1].iat[4,3] - yearlist[0].iat[4,3]) / yearlist[0].iat[4,3] * 100
+            percent_cr_exps_gte_2000 = (yearlist[1].iat[5,3] - yearlist[0].iat[5,3]) / yearlist[0].iat[5,3] * 100
+            percent_cr_exps_total = (yearlist[1].iat[6,3] - yearlist[0].iat[6,3]) / yearlist[0].iat[6,3] * 100
+            percent_change_d = {'Percentage Change':[percent_cr_exps_eq_0,percent_cr_exps_lt_500,percent_cr_exps_lt_1000,percent_cr_exps_lt_1500,percent_cr_exps_lt_2000,percent_cr_exps_gte_2000,percent_cr_exps_total]} 
+
+        yearlist[2] = pd.DataFrame(data=percent_change_d,index=[0,1,2,3,4,5,6]) 
+        #if tob != 'pr_lr': 
+        #    yearlist[2]['AAL Inc(%)'] = (yearlist[1]['AAL']-yearlist[0]['AAL'])/yearlist[0]['AAL']*100
+        #    yearlist[2]['Loss Costs Inc(%)'] = (yearlist[1]['Loss Costs/$1,000']-yearlist[0]['Loss Costs/$1,000'])/yearlist[0]['Loss Costs/$1,000']*100           
+        yearlist[2] = yearlist[2].fillna(0)
+        return yearlist
+
+    @expose('/showDeduc/<string:lastyear>/<string:thisyear>')
+    @has_access
+    def showDeduc(self, lastyear, thisyear):
+
+        tobSelectValue = request.args.get('type_of_building') if request.args.get('type_of_building') else 'pr_lr' 
+        tobform = TOBForm(type_of_building=tobSelectValue)
+
+        # number format
+        int_num_format = lambda x: '{:,}'.format(x)
+        flt_num_format = lambda x: '${:,.2f}'.format(x)
+        flt_percent_format = lambda x: '{:,.2f}%'.format(x)
+        loss_costs_format = lambda x: '{:,.3f}'.format(x)
+
+        yeartup = (lastyear, thisyear)
+        yearlist = MyView.deducAna(yeartup,tobSelectValue)
+
+        lastyear_exps_df = yearlist[0]
+        thisyear_exps_df = yearlist[1]
+        percent_exps_df = yearlist[2]
+        result_df = pd.concat([thisyear_exps_df, percent_exps_df], axis=1)
+
+        if tobSelectValue == 'pr_lr' :
+            return self.render_template('distribution.html',lyear=lastyear,tyear=thisyear,lsim=2017,tsim=2018,analytype='Deduc',title='Deductible',form=tobform,tobSelectValue=tobSelectValue,
+                               tables=[lastyear_exps_df.to_html(classes='table table-bordered',index=False,formatters={'CR Exposure':flt_num_format,'LR Exposure':flt_num_format,'Total Change':flt_percent_format},columns=[lastyear,'Deductible','CR Exposure','LR Exposure','Total Change']),
+                                       result_df.to_html(classes='table table-bordered',index=False,formatters={'CR Exposure':flt_num_format,'LR Exposure':flt_num_format,'Total Change':flt_percent_format,'CR Percentage Change':flt_percent_format,'LR Percentage Change':flt_percent_format},columns=[thisyear,'Deductible','CR Exposure','LR Exposure','Total Change','CR Percentage Change','LR Percentage Change'])])
+        else:
+            return self.render_template('distribution.html',lyear=lastyear,tyear=thisyear,lsim=2017,tsim=2018,analytype='Deduc',title='Deductible',form=tobform,tobSelectValue=tobSelectValue,
+                               tables=[lastyear_exps_df.to_html(classes='table table-bordered',index=False,formatters={'Exposure':flt_num_format,'Exp Total Change':flt_percent_format,'Policy Count':int_num_format,'Policy Total Change':flt_percent_format},columns=[lastyear,'Deductible','Exposure','Exp Total Change','Policy Count','Policy Total Change']),
+                                       result_df.to_html(classes='table table-bordered',index=False,formatters={'Exposure':flt_num_format,'Exp Total Change':flt_percent_format,'Percentage Change':flt_percent_format,'Policy Count':int_num_format,'Policy Total Change':flt_percent_format},columns=[thisyear,'Deductible','Exposure','Exp Total Change','Percentage Change','Policy Count','Policy Total Change'])])
+
+    @expose('/exportDeduc/<string:tobSelectValue>/<string:lastyear>/<string:thisyear>/<int:lastsim>/<int:thissim>')
+    @has_access
+    def exportDeduc(self, tobSelectValue ,lastyear, thisyear, lastsim, thissim):
+
+        yeartup = (lastyear, thisyear)
+        yearlist = MyView.deducAna(yeartup,tobSelectValue)
+
+        lastyear_exps_df = yearlist[0]
+        thisyear_exps_df = yearlist[1]
+        percent_exps_df = yearlist[2]
+
+        if tobSelectValue == 'pr_lr' :
+            result_df = pd.concat([lastyear_exps_df[[lastyear,'Deductible','CR Exposure','LR Exposure','Total Change']],thisyear_exps_df[[thisyear,'Deductible','CR Exposure','LR Exposure','Exp Total Change']], percent_exps_df[['CR Percentage Change','LR Percentage Change']]], axis=1)
+           
+        else:
+            result_df = pd.concat([thisyear_exps_df, percent_exps_df], axis=1)
+            result_df = pd.concat([lastyear_exps_df[[lastyear,'Deductible','Exposure','Exp Total Change','Policy County','Policy Total Change']],result_df[[thisyear,'Deductible','Exposure','Exp Total Change','Percentage Change','Policy Count','Policy Total Change']]], axis=1)
+
+        output = BytesIO()
+        writer = pd.ExcelWriter(output, engine='xlsxwriter')
+        
+        #lastyear_exps_df.to_excel(writer, sheet_name=tobSelectValue,index=False,float_format="%.2f")
+        result_df.to_excel(writer, sheet_name=tobSelectValue,index=False,float_format="%.2f")
+        worksheet1 = writer.sheets[tobSelectValue]
+        
+        workbook = writer.book
+        money_fmt = workbook.add_format({'num_format': '$#,##0.00'})
+        percent_format = workbook.add_format({'num_format': '0.00%'})
+
+        if tobSelectValue == 'pr_lr' :
+            worksheet1.set_column('C:C', 20, money_fmt)
+            worksheet1.set_column('D:D', 20, money_fmt)
+            worksheet1.set_column('I:I', 20, money_fmt)
+            worksheet1.set_column('H:H', 20, money_fmt)
+        else:
+            worksheet1.set_column('C:C', 20, money_fmt)
+            worksheet1.set_column('E:E', 20, money_fmt)
+            worksheet1.set_column('I:I', 20, money_fmt)
+            worksheet1.set_column('L:L', 20, money_fmt)
+        #the writer has done its job
+        writer.close()
+
+        #go back to the beginning of the stream
+        output.seek(0)
+
+        return send_file(output, attachment_filename="yearbuild.xlsx", as_attachment=True)
+
 #appbuilder.add_view(MyView(), "Method1", category='My View')
 #appbuilder.add_view(MyView(), "Method2", href='/myview/method2/jonh', category='My View')
 # Use add link instead there is no need to create MyView twice.
@@ -1238,6 +1452,7 @@ appbuilder.add_link("region", href='/myview/showRegion/2017/2018', category='My 
 appbuilder.add_link("county", href='/myview/showCounty/2017/2018', category='My View')
 appbuilder.add_link("zipcode", href='/myview/showZipCode/2017/2018', category='My View')
 appbuilder.add_link("construction", href='/myview/showConstruction/2017/2018', category='My View')
+appbuilder.add_link("deductible", href='/myview/showDeduc/2017/2018', category='My View')
 
 @appbuilder.app.errorhandler(404)
 def page_not_found(e):
