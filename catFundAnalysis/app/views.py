@@ -1427,7 +1427,19 @@ class MyView(BaseView):
         worksheet1 = writer.sheets[tobSelectValue]
         
         workbook = writer.book
-        
+        money_fmt = workbook.add_format({'num_format': '$#,##0.00'})
+        percent_format = workbook.add_format({'num_format': '0.00%'})
+
+        if tobSelectValue == 'pr_lr' :
+            worksheet1.set_column('C:C', 20, money_fmt)
+            worksheet1.set_column('D:D', 20, money_fmt)
+            worksheet1.set_column('I:I', 20, money_fmt)
+            worksheet1.set_column('H:H', 20, money_fmt)
+        else:
+            worksheet1.set_column('C:C', 20, money_fmt)
+            worksheet1.set_column('E:E', 20, money_fmt)
+            worksheet1.set_column('I:I', 20, money_fmt)
+            worksheet1.set_column('L:L', 20, money_fmt)
         #the writer has done its job
         writer.close()
 
