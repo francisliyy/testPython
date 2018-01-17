@@ -1275,14 +1275,13 @@ class MyView(BaseView):
                 year_cr_df_gte_2000 = year_cr_df_risk[year_cr_df_risk['Deduc'] >= 2000]
 
                 cr_exps_eq_0 = ((year_cr_df_eq_0.LMs + year_cr_df_eq_0.LMapp + year_cr_df_eq_0.LMc + year_cr_df_eq_0.LMale) ).sum()
+                cr_exps_eq_0 = 0 if pd.isna(cr_exps_eq_0) else cr_exps_eq_0
                 cr_exps_lt_500 = ((year_cr_df_lt_500.LMs + year_cr_df_lt_500.LMapp + year_cr_df_lt_500.LMc + year_cr_df_lt_500.LMale) ).sum()
                 cr_exps_lt_1000 = ((year_cr_df_lt_1000.LMs + year_cr_df_lt_1000.LMapp + year_cr_df_lt_1000.LMc + year_cr_df_lt_1000.LMale) ).sum()
                 cr_exps_lt_1500 = ((year_cr_df_lt_1500.LMs + year_cr_df_lt_1500.LMapp + year_cr_df_lt_1500.LMc + year_cr_df_lt_1500.LMale) ).sum()
                 cr_exps_lt_2000 = ((year_cr_df_lt_2000.LMs + year_cr_df_lt_2000.LMapp + year_cr_df_lt_2000.LMc + year_cr_df_lt_2000.LMale) ).sum()
                 cr_exps_gte_2000 = ((year_cr_df_gte_2000.LMs + year_cr_df_gte_2000.LMapp + year_cr_df_gte_2000.LMc + year_cr_df_gte_2000.LMale) ).sum()
                 cr_exps_total = cr_exps_eq_0 + cr_exps_lt_500 + cr_exps_lt_1000 + cr_exps_lt_1500 + cr_exps_lt_2000 + cr_exps_gte_2000
-                if year == 2018 :
-                    cr_exps_total =  heloosdkjldsjxps_gte_20
 
                 change_exps_eq_0 = (cr_exps_eq_0 + lr_exps_eq_0) / (cr_exps_total + lr_exps_total) * 100
                 change_exps_lt_500 = (cr_exps_lt_500 + lr_exps_lt_500) / (cr_exps_total + lr_exps_total) * 100
@@ -1328,15 +1327,15 @@ class MyView(BaseView):
             yearlist[i] = year_exps_df.fillna(0)
             i = i + 1
 
-        percent_cr_exps_eq_0 = (yearlist[1].iat[0,2] - yearlist[0].iat[0,2]) / yearlist[0].iat[0,2] * 100
-        percent_cr_exps_lt_500 = (yearlist[1].iat[1,2] - yearlist[0].iat[1,2]) / yearlist[0].iat[1,2] * 100
-        percent_cr_exps_lt_1000 = (yearlist[1].iat[2,2] - yearlist[0].iat[2,2]) / yearlist[0].iat[2,2] * 100
-        percent_cr_exps_lt_1500 = (yearlist[1].iat[3,2] - yearlist[0].iat[3,2]) / yearlist[0].iat[3,2] * 100
-        percent_cr_exps_lt_2000 = (yearlist[1].iat[4,2] - yearlist[0].iat[4,2]) / yearlist[0].iat[4,2] * 100
-        percent_cr_exps_gte_2000 = (yearlist[1].iat[5,2] - yearlist[0].iat[5,2]) / yearlist[0].iat[5,2] * 100
-        percent_cr_exps_total = (yearlist[1].iat[6,2] - yearlist[0].iat[6,2]) / yearlist[0].iat[6,2] * 100
-
         if tob == 'pr_lr':
+
+            percent_cr_exps_eq_0 = (yearlist[1].iat[0,1] - yearlist[0].iat[0,1]) / yearlist[0].iat[0,1] * 100
+            percent_cr_exps_lt_500 = (yearlist[1].iat[1,1] - yearlist[0].iat[1,1]) / yearlist[0].iat[1,1] * 100
+            percent_cr_exps_lt_1000 = (yearlist[1].iat[2,1] - yearlist[0].iat[2,1]) / yearlist[0].iat[2,1] * 100
+            percent_cr_exps_lt_1500 = (yearlist[1].iat[3,1] - yearlist[0].iat[3,1]) / yearlist[0].iat[3,1] * 100
+            percent_cr_exps_lt_2000 = (yearlist[1].iat[4,1] - yearlist[0].iat[4,1]) / yearlist[0].iat[4,1] * 100
+            percent_cr_exps_gte_2000 = (yearlist[1].iat[5,1] - yearlist[0].iat[5,1]) / yearlist[0].iat[5,1] * 100
+            percent_cr_exps_total = (yearlist[1].iat[6,1] - yearlist[0].iat[6,1]) / yearlist[0].iat[6,1] * 100
 
             percent_lr_exps_eq_0 = (yearlist[1].iat[0,3] - yearlist[0].iat[0,3]) / yearlist[0].iat[0,3] * 100
             percent_lr_exps_lt_500 = (yearlist[1].iat[1,3] - yearlist[0].iat[1,3]) / yearlist[0].iat[1,3] * 100
@@ -1349,6 +1348,14 @@ class MyView(BaseView):
             percent_change_d = {'CR Percentage Change':[percent_cr_exps_eq_0,percent_cr_exps_lt_500,percent_cr_exps_lt_1000,percent_cr_exps_lt_1500,percent_cr_exps_lt_2000,percent_cr_exps_gte_2000,percent_cr_exps_total],
                             'LR Percentage Change':[percent_lr_exps_eq_0,percent_lr_exps_lt_500,percent_lr_exps_lt_1000,percent_lr_exps_lt_1500,percent_lr_exps_lt_2000,percent_lr_exps_gte_2000,percent_lr_exps_total]} 
         else:
+            percent_cr_exps_eq_0 = (yearlist[1].iat[0,2] - yearlist[0].iat[0,2]) / yearlist[0].iat[0,2] * 100
+            percent_cr_exps_lt_500 = (yearlist[1].iat[1,2] - yearlist[0].iat[1,2]) / yearlist[0].iat[1,2] * 100
+            percent_cr_exps_lt_1000 = (yearlist[1].iat[2,2] - yearlist[0].iat[2,2]) / yearlist[0].iat[2,2] * 100
+            percent_cr_exps_lt_1500 = (yearlist[1].iat[3,2] - yearlist[0].iat[3,2]) / yearlist[0].iat[3,2] * 100
+            percent_cr_exps_lt_2000 = (yearlist[1].iat[4,2] - yearlist[0].iat[4,2]) / yearlist[0].iat[4,2] * 100
+            percent_cr_exps_gte_2000 = (yearlist[1].iat[5,2] - yearlist[0].iat[5,2]) / yearlist[0].iat[5,2] * 100
+            percent_cr_exps_total = (yearlist[1].iat[6,2] - yearlist[0].iat[6,2]) / yearlist[0].iat[6,2] * 100
+
             percent_cr_exps_eq_0 = (yearlist[1].iat[0,3] - yearlist[0].iat[0,3]) / yearlist[0].iat[0,3] * 100
             percent_cr_exps_lt_500 = (yearlist[1].iat[1,3] - yearlist[0].iat[1,3]) / yearlist[0].iat[1,3] * 100
             percent_cr_exps_lt_1000 = (yearlist[1].iat[2,3] - yearlist[0].iat[2,3]) / yearlist[0].iat[2,3] * 100
@@ -1407,8 +1414,7 @@ class MyView(BaseView):
         percent_exps_df = yearlist[2]
 
         if tobSelectValue == 'pr_lr' :
-            result_df = pd.concat([lastyear_exps_df[[lastyear,'Deductible','CR Exposure','LR Exposure','Total Change']],thisyear_exps_df[[thisyear,'Deductible','CR Exposure','LR Exposure','Exp Total Change']], percent_exps_df[['CR Percentage Change','LR Percentage Change']]], axis=1)
-           
+            result_df = pd.concat([lastyear_exps_df[[lastyear,'Deductible','CR Exposure','LR Exposure','Total Change']],thisyear_exps_df[[thisyear,'Deductible','CR Exposure','LR Exposure','Total Change']], percent_exps_df[['CR Percentage Change','LR Percentage Change']]], axis=1)
         else:
             result_df = pd.concat([thisyear_exps_df, percent_exps_df], axis=1)
             result_df = pd.concat([lastyear_exps_df[[lastyear,'Deductible','Exposure','Exp Total Change','Policy Count','Policy Total Change']],result_df[[thisyear,'Deductible','Exposure','Exp Total Change','Percentage Change','Policy Count','Policy Total Change']]], axis=1)
@@ -1421,26 +1427,14 @@ class MyView(BaseView):
         worksheet1 = writer.sheets[tobSelectValue]
         
         workbook = writer.book
-        money_fmt = workbook.add_format({'num_format': '$#,##0.00'})
-        percent_format = workbook.add_format({'num_format': '0.00%'})
-
-        if tobSelectValue == 'pr_lr' :
-            worksheet1.set_column('C:C', 20, money_fmt)
-            worksheet1.set_column('D:D', 20, money_fmt)
-            worksheet1.set_column('I:I', 20, money_fmt)
-            worksheet1.set_column('H:H', 20, money_fmt)
-        else:
-            worksheet1.set_column('C:C', 20, money_fmt)
-            worksheet1.set_column('E:E', 20, money_fmt)
-            worksheet1.set_column('I:I', 20, money_fmt)
-            worksheet1.set_column('L:L', 20, money_fmt)
+        
         #the writer has done its job
         writer.close()
 
         #go back to the beginning of the stream
         output.seek(0)
 
-        return send_file(output, attachment_filename="yearbuild.xlsx", as_attachment=True)
+        return send_file(output, attachment_filename="deductible.xlsx", as_attachment=True)
 
 #appbuilder.add_view(MyView(), "Method1", category='My View')
 #appbuilder.add_view(MyView(), "Method2", href='/myview/method2/jonh', category='My View')
