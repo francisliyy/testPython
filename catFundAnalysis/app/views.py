@@ -1411,7 +1411,7 @@ class MyView(BaseView):
            
         else:
             result_df = pd.concat([thisyear_exps_df, percent_exps_df], axis=1)
-            result_df = pd.concat([lastyear_exps_df[[lastyear,'Deductible','Exposure','Exp Total Change','Policy County','Policy Total Change']],result_df[[thisyear,'Deductible','Exposure','Exp Total Change','Percentage Change','Policy Count','Policy Total Change']]], axis=1)
+            result_df = pd.concat([lastyear_exps_df[[lastyear,'Deductible','Exposure','Exp Total Change','Policy Count','Policy Total Change']],result_df[[thisyear,'Deductible','Exposure','Exp Total Change','Percentage Change','Policy Count','Policy Total Change']]], axis=1)
 
         output = BytesIO()
         writer = pd.ExcelWriter(output, engine='xlsxwriter')
