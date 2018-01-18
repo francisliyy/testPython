@@ -1363,9 +1363,10 @@ class MyView(BaseView):
             percent_cr_exps_lt_2000 = (yearlist[1].iat[4,3] - yearlist[0].iat[4,3]) / yearlist[0].iat[4,3] * 100
             percent_cr_exps_gte_2000 = (yearlist[1].iat[5,3] - yearlist[0].iat[5,3]) / yearlist[0].iat[5,3] * 100
             percent_cr_exps_total = (yearlist[1].iat[6,3] - yearlist[0].iat[6,3]) / yearlist[0].iat[6,3] * 100
-            percent_change_d = {'Percentage Change':[percent_cr_exps_eq_0,percent_cr_exps_lt_500,percent_cr_exps_lt_1000,percent_cr_exps_lt_1500,percent_cr_exps_lt_2000,percent_cr_exps_gte_2000,percent_cr_exps_total]} 
+            percent_change_d = {'Exp Percentage Change':[percent_cr_exps_eq_0,percent_cr_exps_lt_500,percent_cr_exps_lt_1000,percent_cr_exps_lt_1500,percent_cr_exps_lt_2000,percent_cr_exps_gte_2000,percent_cr_exps_total]} 
 
-        yearlist[2] = pd.DataFrame(data=percent_change_d,index=[0,1,2,3,4,5,6]) 
+        yearlist[2] = pd.DataFrame(data=percent_change_d,index=[0,1,2,3,4,5,6])
+        yearlist[2]['Policy Percentage Change'] = (yearlist[1]['Policy Count'] - yearlist[0]['Policy Count'])/yearlist[0]['Policy Count']*100 
         #if tob != 'pr_lr': 
         #    yearlist[2]['AAL Inc(%)'] = (yearlist[1]['AAL']-yearlist[0]['AAL'])/yearlist[0]['AAL']*100
         #    yearlist[2]['Loss Costs Inc(%)'] = (yearlist[1]['Loss Costs/$1,000']-yearlist[0]['Loss Costs/$1,000'])/yearlist[0]['Loss Costs/$1,000']*100           
@@ -1400,7 +1401,7 @@ class MyView(BaseView):
         else:
             return self.render_template('distribution.html',lyear=lastyear,tyear=thisyear,lsim=2017,tsim=2018,analytype='Deduc',title='Deductible',form=tobform,tobSelectValue=tobSelectValue,
                                tables=[lastyear_exps_df.to_html(classes='table table-bordered',index=False,formatters={'Exposure':flt_num_format,'Exp Total Change':flt_percent_format,'Policy Count':int_num_format,'Policy Total Change':flt_percent_format},columns=[lastyear,'Deductible','Exposure','Exp Total Change','Policy Count','Policy Total Change']),
-                                       result_df.to_html(classes='table table-bordered',index=False,formatters={'Exposure':flt_num_format,'Exp Total Change':flt_percent_format,'Percentage Change':flt_percent_format,'Policy Count':int_num_format,'Policy Total Change':flt_percent_format},columns=[thisyear,'Deductible','Exposure','Exp Total Change','Percentage Change','Policy Count','Policy Total Change'])])
+                                       result_df.to_html(classes='table table-bordered',index=False,formatters={'Exposure':flt_num_format,'Exp Total Change':flt_percent_format,'Exp Percentage Change':flt_percent_format,'Policy Count':int_num_format,'Policy Total Change':flt_percent_format,'Policy Percentage Change':flt_percent_format},columns=[thisyear,'Deductible','Exposure','Exp Total Change','Exp Percentage Change','Policy Count','Policy Total Change','Policy Percentage Change'])])
 
     @expose('/exportDeduc/<string:tobSelectValue>/<string:lastyear>/<string:thisyear>/<int:lastsim>/<int:thissim>')
     @has_access
@@ -1417,7 +1418,7 @@ class MyView(BaseView):
             result_df = pd.concat([lastyear_exps_df[[lastyear,'Deductible','CR Exposure','LR Exposure','Total Change']],thisyear_exps_df[[thisyear,'Deductible','CR Exposure','LR Exposure','Total Change']], percent_exps_df[['CR Percentage Change','LR Percentage Change']]], axis=1)
         else:
             result_df = pd.concat([thisyear_exps_df, percent_exps_df], axis=1)
-            result_df = pd.concat([lastyear_exps_df[[lastyear,'Deductible','Exposure','Exp Total Change','Policy Count','Policy Total Change']],result_df[[thisyear,'Deductible','Exposure','Exp Total Change','Percentage Change','Policy Count','Policy Total Change']]], axis=1)
+            result_df = pd.concat([lastyear_exps_df[[lastyear,'Deductible','Exposure','Exp Total Change','Policy Count','Policy Total Change']],result_df[[thisyear,'Deductible','Exposure','Exp Total Change','Exp Percentage Change','Policy Count','Policy Total Change','Policy Percentage Change']]], axis=1)
 
         output = BytesIO()
         writer = pd.ExcelWriter(output, engine='xlsxwriter')
