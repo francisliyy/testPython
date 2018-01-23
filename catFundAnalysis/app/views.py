@@ -1366,7 +1366,8 @@ class MyView(BaseView):
             percent_change_d = {'Exp Percentage Change':[percent_cr_exps_eq_0,percent_cr_exps_lt_500,percent_cr_exps_lt_1000,percent_cr_exps_lt_1500,percent_cr_exps_lt_2000,percent_cr_exps_gte_2000,percent_cr_exps_total]} 
 
         yearlist[2] = pd.DataFrame(data=percent_change_d,index=[0,1,2,3,4,5,6])
-        yearlist[2]['Policy Percentage Change'] = (yearlist[1]['Policy Count'] - yearlist[0]['Policy Count'])/yearlist[0]['Policy Count']*100 
+        if tob != 'pr_lr': 
+            yearlist[2]['Policy Percentage Change'] = (yearlist[1]['Policy Count'] - yearlist[0]['Policy Count'])/yearlist[0]['Policy Count']*100 
         #if tob != 'pr_lr': 
         #    yearlist[2]['AAL Inc(%)'] = (yearlist[1]['AAL']-yearlist[0]['AAL'])/yearlist[0]['AAL']*100
         #    yearlist[2]['Loss Costs Inc(%)'] = (yearlist[1]['Loss Costs/$1,000']-yearlist[0]['Loss Costs/$1,000'])/yearlist[0]['Loss Costs/$1,000']*100           
