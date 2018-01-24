@@ -1454,13 +1454,13 @@ class MyView(BaseView):
 #appbuilder.add_view(MyView(), "Method2", href='/myview/method2/jonh', category='My View')
 # Use add link instead there is no need to create MyView twice.
 #appbuilder.add_link("Method2", href='/myview/method2/jonh', category='My View')
-appbuilder.add_view(MyView(),"comparisons", href='/myview/showComparisons/2017/2018/57000/58000', category='My View')
-appbuilder.add_link("yearbuild", href='/myview/showYearbuild/2017/2018', category='My View')
-appbuilder.add_link("region", href='/myview/showRegion/2017/2018', category='My View')
-appbuilder.add_link("county", href='/myview/showCounty/2017/2018', category='My View')
-appbuilder.add_link("zipcode", href='/myview/showZipCode/2017/2018', category='My View')
-appbuilder.add_link("construction", href='/myview/showConstruction/2017/2018', category='My View')
-appbuilder.add_link("deductible", href='/myview/showDeduc/2017/2018', category='My View')
+appbuilder.add_view(MyView(),"comparisons", href='/myview/showComparisons/2017/2018/57000/58000', category='Cat Fund')
+appbuilder.add_link("yearbuild", href='/myview/showYearbuild/2017/2018', category='Cat Fund')
+appbuilder.add_link("region", href='/myview/showRegion/2017/2018', category='Cat Fund')
+appbuilder.add_link("county", href='/myview/showCounty/2017/2018', category='Cat Fund')
+appbuilder.add_link("zipcode", href='/myview/showZipCode/2017/2018', category='Cat Fund')
+appbuilder.add_link("construction", href='/myview/showConstruction/2017/2018', category='Cat Fund')
+appbuilder.add_link("deductible", href='/myview/showDeduc/2017/2018', category='Cat Fund')
 
 @appbuilder.app.errorhandler(404)
 def page_not_found(e):
